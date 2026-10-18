@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Attendance Controller</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f1f3f2; --surface: #ffffff; --ink: #15202b; --muted: #566570; --line: #d3dbdf;
+  --accent: #b4531b; --accent-ink: #ffffff;
+  --ok: #17784a; --ok-soft: #dcf1e6; --warn: #8f5a00; --warn-soft: #fbefd2; --bad: #b3261e; --bad-soft: #fae1de;
+  --f-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --f-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #0e151b; --surface: #161f27; --ink: #e6ecef; --muted: #96a5b0; --line: #2a3742;
+    --accent: #e0864a; --accent-ink: #1a1006;
+    --ok: #4cc38a; --ok-soft: #12362a; --warn: #e0a93b; --warn-soft: #3a2d0e; --bad: #f0776e; --bad-soft: #3d1a18;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
+[hidden] { display: none !important; }
+.wrap { max-width: 920px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.kicker { margin: 0; font: 600 14px var(--f-display); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 6px 0; font: 600 clamp(36px, 8vw, 56px)/1 var(--f-display); text-transform: uppercase; letter-spacing: .01em; text-wrap: balance; }
+h2 { margin: 0; font: 600 22px/1.1 var(--f-display); text-transform: uppercase; letter-spacing: .06em; }
+h3 { margin: 0; font: 600 18px/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .05em; }
+.sub { margin: 0; color: var(--muted); }
+.banner { margin-top: 16px; padding: 12px 14px; border-radius: 8px; background: var(--warn-soft); color: var(--warn); font-weight: 500; }
+.nav { margin-top: 18px; display: flex; gap: 2px; overflow-x: auto; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+.nav button { flex: 0 0 auto; padding: 8px 18px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); font: 600 16px var(--f-display); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+.nav button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.nav .who { flex: 1 1 auto; }
+.panel { margin-top: 16px; padding: 20px; display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.status { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; }
+.lamp { width: 14px; height: 14px; border-radius: 50%; background: var(--line); }
+.lamp.open { background: var(--ok); box-shadow: 0 0 0 5px var(--ok-soft); }
+.lamp.nogeo { background: var(--warn); box-shadow: 0 0 0 5px var(--warn-soft); }
+.status-title { margin: 0; font-weight: 600; font-size: 17px; }
+.status-meta { margin: 2px 0 0; color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.clock { font: 500 30px var(--f-mono); font-variant-numeric: tabular-nums; }
+label, .lbl { display: block; margin-bottom: 6px; font: 600 14px var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+input[type="text"], input[type="date"], input[type="month"], input[type="email"], input[type="password"], select { width: 100%; min-width: 0; padding: 12px 14px; border: 1px solid var(--muted); border-radius: 8px; background: var(--surface); color: var(--ink); font: 500 16px var(--f-body); }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.hint { margin: 0; color: var(--muted); font-size: 13px; }
+.btn { padding: 13px 24px; border: 0; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font: 600 18px var(--f-display); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--muted); }
+.btn.small { padding: 9px 16px; font-size: 15px; }
+.row { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.row > div { min-width: 0; flex: 1 1 160px; }
+.row.tight > * { flex: 0 0 auto; }
+.chip { display: inline-block; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font: 500 13px var(--f-mono); color: var(--muted); }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font: 600 13px var(--f-display); letter-spacing: .08em; text-transform: uppercase; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.muted { background: var(--line); color: var(--muted); }
+.result { margin: 0; padding: 12px 14px; border-radius: 8px; font-weight: 500; overflow-wrap: anywhere; }
+.result.ok { background: var(--ok-soft); color: var(--ok); }
+.result.bad { background: var(--bad-soft); color: var(--bad); }
+.result.warn { background: var(--warn-soft); color: var(--warn); }
+fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.classes { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
+.cls { position: relative; margin: 0; }
+.cls input { position: absolute; opacity: 0; inset: 0; }
+.cls span { display: block; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; font: 600 18px/1.15 var(--f-display); letter-spacing: .04em; text-transform: uppercase; color: var(--ink); cursor: pointer; }
+.cls input:checked + span { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.cls input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
+.livebox { padding: 16px; display: grid; gap: 12px; border: 1px solid var(--ok); border-radius: 8px; background: var(--ok-soft); }
+.livebox .status-meta { color: var(--ink); opacity: .75; }
+.count { margin: 0; font: 500 15px var(--f-mono); color: var(--muted); }
+.count b { font-size: 26px; color: var(--ink); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; }
+.cell { padding: 10px 0; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--muted); font: 500 14px var(--f-mono); font-variant-numeric: tabular-nums; cursor: pointer; }
+.cell.on { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.cell.sel { outline: 3px solid var(--accent); outline-offset: 1px; }
+.cell:disabled { cursor: default; opacity: .6; }
+.confirm { padding: 14px; display: grid; gap: 10px; border: 1px solid var(--accent); border-radius: 8px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.card { padding: 16px; display: grid; gap: 10px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.card.bad { border-color: var(--bad); }
+.pct { font: 600 46px/1 var(--f-display); letter-spacing: .01em; }
+.pct small { font-size: 20px; color: var(--muted); }
+.bar { position: relative; height: 12px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ok); }
+.bar.short i { background: var(--bad); }
+.bar b { position: absolute; top: 0; bottom: 0; left: 75%; width: 2px; background: var(--ink); }
+.note { margin: 0; font-size: 14px; }
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal .dow { text-align: center; font: 600 13px var(--f-display); letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+.day { min-height: 54px; padding: 6px 2px; display: grid; justify-items: center; align-content: space-between; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--ink); font: 500 14px var(--f-mono); cursor: pointer; }
+.day.empty { border: 0; cursor: default; }
+.day.sel { outline: 3px solid var(--accent); outline-offset: 1px; }
+.day.today { border-color: var(--accent); }
+.dots { display: flex; gap: 3px; min-height: 10px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; }
+.dot.p { background: var(--ok); }
+.dot.a { background: var(--bad); }
+.dot.c { background: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 14px; }
+.t th, .t td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+.t th { font: 600 13px var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); background: var(--surface); position: sticky; top: 0; }
+.t td.mono, .t th.mono { font-family: var(--f-mono); }
+.t td.c, .t th.c { text-align: center; }
+.t td.p { background: var(--ok-soft); color: var(--ok); font-weight: 600; text-align: center; }
+.t td.a { color: var(--muted); text-align: center; }
+.t tr.short td { color: var(--bad); }
+.t th button { border: 0; background: transparent; color: var(--accent); font: inherit; cursor: pointer; text-decoration: underline; }
+.t th.cx { text-decoration: line-through; opacity: .6; }
+.t .sticky { position: sticky; left: 0; background: var(--surface); }
+.list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.list li { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .status { grid-template-columns: auto minmax(0, 1fr); } .clock { grid-column: 1 / -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="kicker">Rajkiya Engineering College, Ambedkar Nagar</p>
+    <h1>Attendance Controller</h1>
+    <p class="sub">Final year, Electrical Engineering. Roll numbers 2307370200001 to 2307370200070.</p>
+  </header>
+  <div id="banner" class="banner" hidden></div>
+  <div id="app"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+/* STEP 4 of SETUP.md: paste your own Firebase web config here. */
+   const FIREBASE_CONFIG = {
+     apiKey: "AIzaSyDheT6dkqkZz5rl6b1A9cs2t6fR5hhoQ5Q",
+     authDomain: "attendancefinalyear-737.firebaseapp.com",
+     projectId: "attendancefinalyear-737",
+     appId: "1:656072006421:web:842066acad2a169373a71c"
+   };
+</script>
+
+<script>
+(() => {
+  const PREFIX = '23073702', TOTAL = 70, RADIUS = 50, CRIT = 75;
+  const DOMAIN = 'students.example.com';
+  const CLASSES = [
+    { id: 'epd', name: 'Electric Power Drives' },
+    { id: 're', name: 'Renewable Energy' },
+    { id: 'psp', name: 'Power System Protection' }
+  ];
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const MONTH_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  // ---------- small helpers ----------
+  const $ = (id) => document.getElementById(id);
+  const rollOf = (n) => PREFIX + String(n).padStart(5, '0');
+  const ROLLS = Array.from({ length: TOTAL }, (_, i) => rollOf(i + 1));
+  const emailOf = (roll) => roll + '@' + DOMAIN;
+  const clsName = (id) => (CLASSES.find((c) => c.id === id) || {}).name || id;
+  const validRoll = (r) => { if (!/^\d{13}$/.test(r) || r.slice(0, 8) !== PREFIX) return false; const n = parseInt(r.slice(8), 10); return n >= 1 && n <= TOTAL; };
+  const istDate = (ms) => new Date((ms || Date.now()) + 19800000).toISOString().slice(0, 10);
+  const fmtTime = (ms) => new Date(ms).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' });
+  const fmtDate = (dk) => { const [y, m, d] = dk.split('-'); return parseInt(d, 10) + ' ' + MON[parseInt(m, 10) - 1] + ' ' + y; };
+  const fmtMonth = (mk) => { const [y, m] = mk.split('-'); return MONTH_LONG[parseInt(m, 10) - 1] + ' ' + y; };
+  const fmtClock = (ms) => { const s = Math.ceil(Math.max(0, ms) / 1000); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  const isOpen = (l) => !!l && !l.closed && Date.now() < l.closesAt;
+  const markKey = (cid, dk) => cid + '_' + dk;
+  const fmtPct = (p) => (p == null ? '-' : p.toFixed(1) + '%');
+  const haversine = (la1, lo1, la2, lo2) => {
+    const R = 6371000, r = Math.PI / 180, dLa = (la2 - la1) * r, dLo = (lo2 - lo1) * r;
+    const a = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin(dLo / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(a));
+  };
+  const getPos = () => new Promise((res, rej) => {
+    if (!navigator.geolocation) return rej({ code: 0 });
+    navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+  });
+  const geoMsg = (e) => {
+    if (e && e.code === 1) return 'Location is blocked. Allow location for this site in your browser settings and try again.';
+    if (e && e.code === 3) return 'No GPS fix in time. Move near a window and try again.';
+    return 'Your location could not be read on this device.';
+  };
+  // 75% maths. a = classes attended, h = classes held.
+  const pctOf = (a, h) => (h > 0 ? (a * 100) / h : null);
+  const needMore = (a, h) => Math.max(0, 3 * h - 4 * a);                      // attend this many in a row to reach 75%
+  const canMiss = (a, h) => Math.max(0, Math.floor((4 * a) / 3 - h + 1e-9));  // can still miss this many and stay at 75%
+  const isShort = (a, h) => h > 0 && a * 100 < CRIT * h;
+
+  function h(tag, attrs, ...kids) {
+    const e = document.createElement(tag);
+    let val;
+    if (attrs) for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === 'class') e.className = v;
+      else if (k === 'value') val = v;
+      else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+      else if (k === 'disabled' || k === 'checked' || k === 'hidden') e[k] = true;
+      else e.setAttribute(k, v === true ? '' : v);
+    }
+    for (const kid of kids.flat(2)) { if (kid == null || kid === false) continue; e.append(kid.nodeType ? kid : document.createTextNode(String(kid))); }
+    if (val !== undefined) e.value = val;
+    return e;
+  }
+  const banner = (t) => { const b = $('banner'); b.textContent = t || ''; b.hidden = !t; };
+  const downloadCsv = (name, rows) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([rows.map((r) => r.map((c) => '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"').join(',')).join('\n')], { type: 'text/csv' }));
+    a.download = name; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+
+  // ---------- state ----------
+  let auth = null, db = null, FV = null, FP = null;
+  const today = istDate();
+  const S = {
+    ready: false, user: null, role: null, roll: null, activated: false,
+    live: null, calendar: {}, myMarks: {}, records: new Map(), students: new Map(), audit: null,
+    tab: 'day', cls: 'epd', date: today, regCls: 'epd', regMonth: today.slice(0, 7),
+    chkScope: 'all', chkOnly: true, month: today.slice(0, 7), selDate: today,
+    pending: null, msgs: {}, codes: null, busy: false
+  };
+  let unsubs = [], rq = 0, wasOpen = false;
+  const msg = (k, text, kind) => { S.msgs[k] = text ? { text, kind } : null; render(); };
+  const msgEl = (k) => { const m = S.msgs[k]; return m ? h('p', { class: 'result ' + (m.kind || ''), role: 'status' }, m.text) : null; };
+
+  // ---------- data helpers ----------
+  const datesOf = (cid) => (S.calendar[cid] && S.calendar[cid].dates) || {};
+  const heldDates = (cid) => Object.keys(datesOf(cid)).filter((d) => !datesOf(cid)[d].cancelled).sort();
+  function statFor(marks, cid) {
+    const dates = heldDates(cid); let a = 0;
+    if (marks) for (const d of dates) if (marks[markKey(cid, d)]) a++;
+    return { held: dates.length, att: a };
+  }
+  function statAll(marks) {
+    let held = 0, att = 0;
+    for (const c of CLASSES) { const s = statFor(marks, c.id); held += s.held; att += s.att; }
+    return { held, att };
+  }
+  function markText(m) {
+    if (!m) return 'Absent';
+    if (m.method === 'manual') return 'Present, marked by professor' + (m.reason ? ' (' + m.reason + ')' : '') + ' at ' + fmtTime(m.ts);
+    return 'Present at ' + fmtTime(m.ts) + (m.dist != null ? ', ' + m.dist + ' m from the classroom' : '');
+  }
+
+  // ---------- rendering ----------
+  function render() { cancelAnimationFrame(rq); rq = requestAnimationFrame(doRender); }
+  function doRender() {
+    const app = $('app');
+    app.replaceChildren();
+    if (!S.ready) return;
+    if (!S.user) { app.append(viewLogin()); return; }
+    if (S.role === 'student') {
+      if (!S.activated) { app.append(viewSetPassword()); return; }
+      app.append(navBar([['dash', 'My attendance']], 'dash'), viewStudent());
+      return;
+    }
+    app.append(navBar([['day', 'Day'], ['reg', 'Register'], ['chk', '75% check'], ['stu', 'Students'], ['log', 'Changes']], S.tab));
+    app.append(({ day: viewDay, reg: viewRegister, chk: viewCheck, stu: viewStudents, log: viewLog }[S.tab] || viewDay)());
+  }
+  function navBar(items, cur) {
+    return h('nav', { class: 'nav' },
+      items.map(([id, label]) => h('button', { type: 'button', 'aria-selected': String(id === cur), onclick: () => { S.tab = id; S.pending = null; if (id === 'log') loadAudit(); render(); } }, label)),
+      h('span', { class: 'who' }),
+      h('button', { type: 'button', onclick: () => auth.signOut() }, 'Log out'));
+  }
+
+  // ---------- login ----------
+  function viewLogin() {
+    const id = h('input', { type: 'text', id: 'lid', autocomplete: 'username', placeholder: '2307370200001', spellcheck: 'false' });
+    const pw = h('input', { type: 'password', id: 'lpw', autocomplete: 'current-password' });
+    const out = h('p', { class: 'result', hidden: true, role: 'status' });
+    const say = (t, k) => { out.textContent = t; out.className = 'result ' + k; out.hidden = !t; };
+    async function go() {
+      const v = id.value.trim();
+      if (!v || !pw.value) return say('Enter your ID and password.', 'bad');
+      let email = v;
+      if (/^\d+$/.test(v)) { if (!validRoll(v)) return say('That roll number is not in this class.', 'bad'); email = emailOf(v); }
+      say('Logging in', 'warn');
+      try { await auth.signInWithEmailAndPassword(email, pw.value); }
+      catch (e) {
+        say(e && e.code === 'auth/too-many-requests' ? 'Too many tries. Wait a few minutes and try again.' : 'ID or password is wrong.', 'bad');
+      }
+    }
+    pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+    return h('div', { class: 'panel' },
+      h('h2', null, 'Log in'),
+      h('div', null, h('label', { for: 'lid' }, 'College ID (roll number)'), id, h('p', { class: 'hint' }, 'Professors use their email here.')),
+      h('div', null, h('label', { for: 'lpw' }, 'Password'), pw),
+      h('p', { class: 'hint' }, 'First time? Your password is the activation code your professor gave you. You will choose your own password right after.'),
+      h('div', null, h('button', { class: 'btn', type: 'button', onclick: go }, 'Log in')),
+      out);
+  }
+  function viewSetPassword() {
+    const p1 = h('input', { type: 'password', id: 'np1', autocomplete: 'new-password' });
+    const p2 = h('input', { type: 'password', id: 'np2', autocomplete: 'new-password' });
+    const out = h('p', { class: 'result', hidden: true, role: 'status' });
+    const say = (t, k) => { out.textContent = t; out.className = 'result ' + k; out.hidden = !t; };
+    async function go() {
+      if (p1.value.length < 8) return say('Use at least 8 characters.', 'bad');
+      if (p1.value !== p2.value) return say('The two passwords do not match.', 'bad');
+      say('Saving', 'warn');
+      try {
+        await auth.currentUser.updatePassword(p1.value);
+        await db.doc('students/' + S.user.uid).update({ activated: true });
+        S.activated = true; startStudent(); render();
+      } catch (e) {
+        say(e && e.code === 'auth/requires-recent-login' ? 'Please log out and log in again, then set the password.' : 'Could not save the password. Try again.', 'bad');
+      }
+    }
+    return h('div', { class: 'panel' },
+      h('h2', null, 'Choose your password'),
+      h('p', { class: 'note' }, 'Logged in as ' + S.roll + '. Set a password only you know. You will use it from now on.'),
+      h('div', null, h('label', { for: 'np1' }, 'New password'), p1),
+      h('div', null, h('label', { for: 'np2' }, 'Repeat password'), p2),
+      h('div', null, h('button', { class: 'btn', type: 'button', onclick: go }, 'Save password')),
+      out);
+  }
+
+  // ---------- student ----------
+  function summaryCard(title, a, hd, extra) {
+    const p = pctOf(a, hd), short = isShort(a, hd);
+    let line;
+    if (hd === 0) line = 'No class has been held yet.';
+    else if (short) line = 'Below 75%. Attend the next ' + needMore(a, hd) + ' class' + (needMore(a, hd) === 1 ? '' : 'es') + ' in a row to reach 75%.';
+    else line = 'You can miss ' + canMiss(a, hd) + ' more class' + (canMiss(a, hd) === 1 ? '' : 'es') + ' and stay at 75% or above.';
+    return h('div', { class: 'card' + (short ? ' bad' : '') },
+      h('h3', null, title),
+      h('div', { class: 'pct' }, p == null ? '-' : p.toFixed(1), h('small', null, '%')),
+      h('div', { class: 'bar' + (short ? ' short' : ''), role: 'img', 'aria-label': fmtPct(p) + ' attended, 75% needed' }, h('i', { style: 'width:' + Math.min(100, p || 0) + '%' }), h('b')),
+      h('p', { class: 'note' }, 'Present in ' + a + ' of ' + hd + ' classes.'),
+      h('p', { class: 'note' }, h('span', { class: 'pill ' + (hd === 0 ? 'muted' : short ? 'bad' : 'ok') }, hd === 0 ? 'No classes yet' : short ? 'Short of 75%' : 'Safe'), ' ', line),
+      extra);
+  }
+  function viewStudent() {
+    const wrap = h('div');
+    // mark card
+    const l = S.live;
+    if (isOpen(l)) {
+      const done = S.myMarks[markKey(l.classId, l.dateKey)];
+      wrap.append(h('div', { class: 'panel' },
+        h('div', { class: 'status' },
+          h('span', { class: 'lamp ' + (l.geo ? 'open' : 'nogeo') }),
+          h('div', null, h('p', { class: 'status-title' }, l.className + ' attendance is open'),
+            h('p', { class: 'status-meta' }, 'Closes at ' + fmtTime(l.closesAt) + (l.geo ? '. You must be within 50 m of the classroom.' : '. Location is not checked for this window.'))),
+          h('div', { class: 'clock js-clock', 'data-close': l.closesAt }, fmtClock(l.closesAt - Date.now()))),
+        done ? h('p', { class: 'result ok' }, 'You are marked present. ' + markText(done))
+          : h('div', null, h('button', { class: 'btn', type: 'button', disabled: S.busy, onclick: studentMark }, 'Mark me present')),
+        msgEl('mark')));
+    } else if (S.msgs.mark) wrap.append(h('div', { class: 'panel' }, msgEl('mark')));
+
+    // summaries
+    const all = statAll(S.myMarks);
+    const heldDays = new Set(), presDays = new Set();
+    for (const c of CLASSES) for (const d of heldDates(c.id)) { heldDays.add(d); if (S.myMarks[markKey(c.id, d)]) presDays.add(d); }
+    wrap.append(h('div', { class: 'panel' },
+      h('h2', null, 'Roll ' + S.roll),
+      h('p', { class: 'note' }, 'Days you came to college: ' + presDays.size + ' of ' + heldDays.size + ' class days. Marks are saved permanently and only your professor can change them.'),
+      h('div', { class: 'cards' },
+        summaryCard('All subjects', all.att, all.held),
+        CLASSES.map((c) => { const s = statFor(S.myMarks, c.id); return summaryCard(c.name, s.att, s.held); }))));
+
+    // calendar
+    wrap.append(viewCalendar());
+    return wrap;
+  }
+  function shiftMonth(mk, d) { let [y, m] = mk.split('-').map(Number); m += d; if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; } return y + '-' + String(m).padStart(2, '0'); }
+  function viewCalendar() {
+    const [y, m] = S.month.split('-').map(Number);
+    const first = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7;
+    const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const grid = h('div', { class: 'cal' }, ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => h('div', { class: 'dow' }, d)));
+    for (let i = 0; i < first; i++) grid.append(h('div', { class: 'day empty' }));
+    for (let d = 1; d <= days; d++) {
+      const dk = S.month + '-' + String(d).padStart(2, '0');
+      const dots = CLASSES.map((c) => {
+        const info = datesOf(c.id)[dk]; if (!info) return null;
+        if (info.cancelled) return h('span', { class: 'dot c', title: c.name + ' cancelled' });
+        return h('span', { class: 'dot ' + (S.myMarks[markKey(c.id, dk)] ? 'p' : 'a'), title: c.name });
+      });
+      grid.append(h('button', { type: 'button', class: 'day' + (dk === S.selDate ? ' sel' : '') + (dk === today ? ' today' : ''), onclick: () => { S.selDate = dk; render(); } }, String(d), h('span', { class: 'dots' }, dots)));
+    }
+    const dk = S.selDate, rows = [];
+    for (const c of CLASSES) {
+      const info = datesOf(c.id)[dk]; if (!info) continue;
+      rows.push(h('li', null, h('b', null, c.name), ': ', info.cancelled ? 'Class cancelled, not counted.' : markText(S.myMarks[markKey(c.id, dk)])));
+    }
+    return h('div', { class: 'panel' },
+      h('div', { class: 'row tight' },
+        h('button', { class: 'btn ghost small', type: 'button', 'aria-label': 'Previous month', onclick: () => { S.month = shiftMonth(S.month, -1); render(); } }, 'Prev'),
+        h('h2', null, fmtMonth(S.month)),
+        h('button', { class: 'btn ghost small', type: 'button', 'aria-label': 'Next month', onclick: () => { S.month = shiftMonth(S.month, 1); render(); } }, 'Next')),
+      h('div', { class: 'legend' }, h('span', null, h('i', { class: 'dot p' }), 'Present'), h('span', null, h('i', { class: 'dot a' }), 'Absent'), h('span', null, h('i', { class: 'dot c' }), 'Cancelled')),
+      grid,
+      h('h3', null, fmtDate(dk)),
+      rows.length ? h('ul', { class: 'list' }, rows) : h('p', { class: 'note' }, 'No class was held on this day.'));
+  }
+  async function studentMark() {
+    const win = S.live;
+    if (!isOpen(win)) return msg('mark', 'The attendance window is closed.', 'bad');
+    const key = markKey(win.classId, win.dateKey);
+    if (S.myMarks[key]) return msg('mark', 'You are already marked for this class.', 'ok');
+    S.busy = true; msg('mark', win.geo ? 'Reading your location' : 'Saving', 'warn');
+    try {
+      let dist = null, acc = null;
+      if (win.geo) {
+        let pos;
+        try { pos = await getPos(); } catch (e) { S.busy = false; return msg('mark', geoMsg(e) + ' If this keeps happening, ask your professor to mark you.', 'bad'); }
+        dist = haversine(pos.coords.latitude, pos.coords.longitude, win.lat, win.lng); acc = pos.coords.accuracy;
+        if (dist > RADIUS) { S.busy = false; return msg('mark', 'You are about ' + Math.round(dist) + ' m from the classroom. Move within ' + RADIUS + ' m and try again.', 'bad'); }
+        if (acc > RADIUS) { S.busy = false; return msg('mark', 'Your GPS is only accurate to about ' + Math.round(acc) + ' m, too coarse to confirm you are in the room. Move near a window and try again. If it still fails, ask your professor to mark you.', 'bad'); }
+      }
+      if (!isOpen(S.live) || S.live.sessionId !== win.sessionId) { S.busy = false; return msg('mark', 'The attendance window closed before it could be saved.', 'bad'); }
+      await db.doc('records/' + S.roll).set({
+        roll: S.roll,
+        marks: { [key]: { ts: Date.now(), dist: dist == null ? null : Math.round(dist), acc: acc == null ? null : Math.round(acc), method: win.geo ? 'gps' : 'no-location', sid: win.sessionId } }
+      }, { merge: true });
+      S.busy = false; msg('mark', '', '');
+    } catch (e) {
+      S.busy = false;
+      msg('mark', e && e.code === 'permission-denied' ? 'The window has just closed, so this could not be saved. Ask your professor to mark you.' : 'Could not save your attendance. Check your connection and try again.', 'bad');
+    }
+  }
+
+  // ---------- professor: Day ----------
+  function classRadios() {
+    return h('fieldset', null, h('legend', { class: 'lbl' }, 'Class'),
+      h('div', { class: 'classes' }, CLASSES.map((c) => h('label', { class: 'cls' },
+        h('input', { type: 'radio', name: 'cls', value: c.id, checked: c.id === S.cls, onchange: () => { S.cls = c.id; } }), h('span', null, c.name)))));
+  }
+  function classSelect(id, val, on) {
+    return h('select', { id, value: val, onchange: (e) => on(e.target.value) }, CLASSES.map((c) => h('option', { value: c.id }, c.name)));
+  }
+  function viewDay() {
+    const wrap = h('div');
+    const dur = h('select', { id: 'dur', value: S.dur || '5', onchange: (e) => { S.dur = e.target.value; } }, [2, 3, 5, 10].map((n) => h('option', { value: String(n) }, n + ' minutes')));
+    const l = S.live, open = isOpen(l);
+    wrap.append(h('div', { class: 'panel' },
+      h('h2', null, 'Open an attendance window'),
+      classRadios(),
+      h('div', { class: 'row' }, h('div', null, h('label', { for: 'dur' }, 'Window length'), dur), h('div', null, h('span', { class: 'chip' }, 'Radius 50 m'))),
+      h('p', { class: 'hint' }, 'Stand where you teach. Your location becomes the centre of the 50 m circle. Students can mark only while the window is open, and only once per class per day.'),
+      h('div', { class: 'row tight' },
+        h('button', { class: 'btn', type: 'button', disabled: S.busy, onclick: () => openWindow(false) }, 'Open window'),
+        S.needNoGeo ? h('button', { class: 'btn ghost small', type: 'button', onclick: () => openWindow(true) }, 'Open without location check') : null),
+      msgEl('open'),
+      l && !(l.closed && !open) ? h('div', { class: 'livebox' },
+        h('div', { class: 'status' },
+          h('span', { class: 'lamp ' + (open ? (l.geo ? 'open' : 'nogeo') : '') }),
+          h('div', null, h('p', { class: 'status-title' }, l.className + (open ? ' is open' : ' window has ended')),
+            h('p', { class: 'status-meta' }, (open ? 'Closes at ' : 'Ended at ') + fmtTime(l.closesAt) + (l.geo ? '. Centre fixed, GPS accuracy about ' + Math.round(l.acc || 0) + ' m.' : '. No location check.'))),
+          h('div', { class: 'clock js-clock', 'data-close': l.closesAt }, open ? fmtClock(l.closesAt - Date.now()) : '00:00')),
+        h('div', { class: 'row tight' },
+          h('button', { class: 'btn small', type: 'button', disabled: !open, onclick: closeWindow }, 'Close now'),
+          h('button', { class: 'btn ghost small', type: 'button', disabled: !!l.closed, onclick: extendWindow }, 'Add 1 minute'))) : null));
+
+    // day view
+    const info = datesOf(S.cls)[S.date];
+    const marks = (r) => (S.records.get(r) || {})[markKey(S.cls, S.date)];
+    let n = 0; ROLLS.forEach((r) => { if (marks(r)) n++; });
+    const future = S.date > today;
+    wrap.append(h('div', { class: 'panel' },
+      h('h2', null, 'Day view and manual marking'),
+      h('div', { class: 'row' },
+        h('div', null, h('label', { for: 'dc' }, 'Class'), classSelect('dc', S.cls, (v) => { S.cls = v; S.pending = null; render(); })),
+        h('div', null, h('label', { for: 'dd' }, 'Date'), h('input', { type: 'date', id: 'dd', value: S.date, max: today, onchange: (e) => { if (e.target.value) { S.date = e.target.value; S.pending = null; render(); } } }))),
+      h('p', { class: 'note' }, info ? (info.cancelled ? 'This class is marked as cancelled, so it is not counted in anyone\'s percentage.' : 'This class was held and counts in everyone\'s percentage.') : 'No class is recorded for this day yet. Marking a student present will record the class as held.'),
+      info ? h('div', null, h('button', { class: 'btn ghost small', type: 'button', onclick: () => setCancelled(!info.cancelled) }, info.cancelled ? 'Count this class again' : 'Cancel this class (do not count)')) : null,
+      h('p', { class: 'count' }, h('b', null, String(n)), ' of ' + TOTAL + ' present'),
+      h('div', { class: 'grid' }, ROLLS.map((r, i) => {
+        const on = !!marks(r), m = marks(r);
+        return h('button', { type: 'button', class: 'cell' + (on ? ' on' : '') + (S.pending && S.pending.roll === r ? ' sel' : ''), disabled: future || S.busy, 'aria-pressed': String(on),
+          'aria-label': r + (on ? ', present' : ', absent'), title: r + (on ? ' ' + markText(m) : ' absent'), onclick: () => { S.pending = { roll: r, mark: !on }; render(); } }, String(i + 1).padStart(2, '0'));
+      })),
+      S.pending ? confirmBar() : h('p', { class: 'hint' }, 'Tap a number to mark or unmark that student. You will be asked to confirm and give a reason. Every change is saved in the Changes log.'),
+      msgEl('day')));
+    return wrap;
+  }
+  function confirmBar() {
+    const p = S.pending;
+    const reasons = p.mark ? ['Location problem', 'Phone problem', 'Marked late with permission', 'Other'] : ['Marked by mistake', 'Student left', 'Other'];
+    const sel = h('select', { id: 'reason', value: S.reason && reasons.includes(S.reason) ? S.reason : reasons[0], onchange: (e) => { S.reason = e.target.value; } }, reasons.map((r) => h('option', { value: r }, r)));
+    return h('div', { class: 'confirm' },
+      h('p', { class: 'note' }, h('b', null, p.mark ? 'Mark present: ' : 'Remove attendance: '), p.roll + ' for ' + clsName(S.cls) + ' on ' + fmtDate(S.date) + '?'),
+      h('div', null, h('label', { for: 'reason' }, 'Reason'), sel),
+      h('div', { class: 'row tight' },
+        h('button', { class: 'btn small', type: 'button', disabled: S.busy, onclick: () => profMark(p.roll, S.cls, S.date, p.mark, sel.value) }, 'Confirm'),
+        h('button', { class: 'btn ghost small', type: 'button', onclick: () => { S.pending = null; render(); } }, 'Cancel')));
+  }
+  async function auditAdd(batch, data) {
+    batch.set(db.collection('audit').doc(), Object.assign({ by: S.user.email, ts: Date.now() }, data));
+  }
+  async function profMark(roll, cid, date, mark, reason) {
+    if (date > today) return msg('day', 'You cannot change attendance for a future date.', 'bad');
+    S.busy = true; render();
+    try {
+      const key = markKey(cid, date), batch = db.batch(), ref = db.doc('records/' + roll);
+      if (mark) {
+        batch.set(ref, { roll, marks: { [key]: { ts: Date.now(), dist: null, acc: null, method: 'manual', by: S.user.email, reason, sid: 'manual' } } }, { merge: true });
+        if (!datesOf(cid)[date]) batch.set(db.doc('calendar/' + cid), { classId: cid, dates: { [date]: { cancelled: false, openedAt: Date.now(), manual: true } } }, { merge: true });
+      } else batch.update(ref, new FP('marks', key), FV.delete());
+      await auditAdd(batch, { action: mark ? 'mark' : 'unmark', roll, classId: cid, dateKey: date, reason });
+      await batch.commit();
+      S.pending = null; S.busy = false; msg('day', (mark ? 'Marked ' : 'Removed ') + roll + '.', 'ok');
+    } catch (e) { S.busy = false; msg('day', 'Could not save that change. Check your connection and try again.', 'bad'); }
+  }
+  async function setCancelled(c) {
+    S.busy = true; render();
+    try {
+      const batch = db.batch();
+      batch.set(db.doc('calendar/' + S.cls), { classId: S.cls, dates: { [S.date]: { cancelled: c } } }, { merge: true });
+      await auditAdd(batch, { action: c ? 'cancel-class' : 'restore-class', roll: '', classId: S.cls, dateKey: S.date, reason: '' });
+      await batch.commit(); S.busy = false; msg('day', c ? 'Class cancelled. It is no longer counted.' : 'Class counted again.', 'ok');
+    } catch (e) { S.busy = false; msg('day', 'Could not change the class. Try again.', 'bad'); }
+  }
+  async function openWindow(noGeo) {
+    S.needNoGeo = false;
+    const el = document.querySelector('input[name="cls"]:checked');
+    const classId = el ? el.value : S.cls, mins = parseInt(($('dur') || {}).value || S.dur || '5', 10);
+    S.cls = classId; S.busy = true; msg('open', noGeo ? 'Opening' : 'Reading your location', 'warn');
+    try {
+      let g = null;
+      if (!noGeo) {
+        try { const p = await getPos(); g = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy }; }
+        catch (e) { S.busy = false; S.needNoGeo = true; return msg('open', geoMsg(e) + ' You can still open this window without the 50 m check. Students will see that location is not checked.', 'bad'); }
+      }
+      const now = Date.now(), dk = istDate(now), batch = db.batch();
+      batch.set(db.doc('live/current'), {
+        sessionId: 's' + now.toString(36), classId, className: clsName(classId), dateKey: dk,
+        openedAt: now, closesAt: now + mins * 60000, closed: false, geo: !!g,
+        lat: g ? g.lat : null, lng: g ? g.lng : null, acc: g ? Math.round(g.acc) : null, radius: RADIUS
+      });
+      batch.set(db.doc('calendar/' + classId), { classId, dates: { [dk]: { cancelled: false, openedAt: now } } }, { merge: true });
+      await batch.commit();
+      S.date = dk; S.busy = false;
+      msg('open', g && g.acc > 25 ? 'Window open. Your GPS is accurate to about ' + Math.round(g.acc) + ' m, so a spot near a window gives a tighter circle.' : 'Window open for ' + mins + ' minutes.', g && g.acc > 25 ? 'warn' : 'ok');
+    } catch (e) { S.busy = false; msg('open', 'Could not open the window. Check your connection and try again.', 'bad'); }
+  }
+  async function closeWindow() { try { await db.doc('live/current').update({ closed: true, closedAt: Date.now() }); msg('open', 'Window closed.', 'ok'); } catch (_) { msg('open', 'Could not close the window. Try again.', 'bad'); } }
+  async function extendWindow() { try { await db.doc('live/current').update({ closesAt: Math.max(S.live.closesAt, Date.now()) + 60000, closed: false }); msg('open', 'Added one minute.', 'ok'); } catch (_) { msg('open', 'Could not extend the window. Try again.', 'bad'); } }
+
+  // ---------- professor: Register ----------
+  function viewRegister() {
+    const cid = S.regCls, mk = S.regMonth;
+    const dates = Object.keys(datesOf(cid)).filter((d) => d.startsWith(mk)).sort();
+    const head = h('tr', null, h('th', { class: 'sticky mono' }, 'Roll'),
+      dates.map((d) => h('th', { class: 'c' + (datesOf(cid)[d].cancelled ? ' cx' : '') }, h('button', { type: 'button', title: 'Open ' + fmtDate(d), onclick: () => { S.cls = cid; S.date = d; S.tab = 'day'; render(); } }, d.slice(8)))),
+      h('th', { class: 'c' }, 'Month'), h('th', { class: 'c' }, 'Term %'));
+    const body = ROLLS.map((r) => {
+      const marks = S.records.get(r) || {}; let mp = 0, mh = 0;
+      const cells = dates.map((d) => {
+        const cx = datesOf(cid)[d].cancelled, on = !!marks[markKey(cid, d)];
+        if (!cx) { mh++; if (on) mp++; }
+        return h('td', { class: cx ? 'a' : on ? 'p' : 'a', title: r + ' ' + fmtDate(d) }, cx ? '/' : on ? 'P' : '-');
+      });
+      const st = statFor(marks, cid);
+      return h('tr', { class: isShort(st.att, st.held) ? 'short' : '' }, h('td', { class: 'sticky mono' }, r.slice(8)), cells, h('td', { class: 'c' }, mp + '/' + mh), h('td', { class: 'c' }, fmtPct(pctOf(st.att, st.held))));
+    });
+    return h('div', { class: 'panel' },
+      h('h2', null, 'Attendance register'),
+      h('div', { class: 'row' },
+        h('div', null, h('label', { for: 'rc' }, 'Class'), classSelect('rc', cid, (v) => { S.regCls = v; render(); })),
+        h('div', null, h('label', { for: 'rm' }, 'Month'), h('input', { type: 'month', id: 'rm', value: mk, onchange: (e) => { if (e.target.value) { S.regMonth = e.target.value; render(); } } })),
+        h('button', { class: 'btn ghost small', type: 'button', onclick: () => exportRegister(cid, mk, dates) }, 'Save as CSV')),
+      h('p', { class: 'hint' }, 'Roll shown as the last 5 digits after ' + PREFIX + '. P present, - absent, / class cancelled. Tap a date to open that day. Term % counts all held classes of this subject. Red rows are below 75%.'),
+      dates.length ? h('div', { class: 'tablewrap' }, h('table', { class: 't' }, h('thead', null, head), h('tbody', null, body))) : h('p', { class: 'note' }, 'No class was held for ' + clsName(cid) + ' in ' + fmtMonth(mk) + '.'));
+  }
+  function exportRegister(cid, mk, dates) {
+    const rows = [['Roll number'].concat(dates, ['Present this month', 'Held this month', 'Term attended', 'Term held', 'Term %'])];
+    ROLLS.forEach((r) => {
+      const marks = S.records.get(r) || {}; let mp = 0, mh = 0;
+      const cells = dates.map((d) => { if (datesOf(cid)[d].cancelled) return 'Cancelled'; mh++; const on = !!marks[markKey(cid, d)]; if (on) mp++; return on ? 'P' : 'A'; });
+      const st = statFor(marks, cid);
+      rows.push([r].concat(cells, [mp, mh, st.att, st.held, st.held ? (st.att * 100 / st.held).toFixed(1) : '']));
+    });
+    downloadCsv(cid + '-' + mk + '-register.csv', rows);
+  }
+
+  // ---------- professor: 75% check ----------
+  function viewCheck() {
+    const scope = S.chkScope;
+    const rows = ROLLS.map((r) => {
+      const marks = S.records.get(r) || {};
+      const st = scope === 'all' ? statAll(marks) : statFor(marks, scope);
+      return { roll: r, att: st.att, held: st.held, pct: pctOf(st.att, st.held), short: isShort(st.att, st.held) };
+    });
+    const shortN = rows.filter((x) => x.short).length;
+    const shown = rows.filter((x) => !S.chkOnly || x.short).sort((a, b) => (a.pct == null ? 1 : b.pct == null ? -1 : a.pct - b.pct));
+    const heldN = rows[0] ? rows[0].held : 0;
+    return h('div', { class: 'panel' },
+      h('h2', null, '75% eligibility check'),
+      h('div', { class: 'row' },
+        h('div', null, h('label', { for: 'cs' }, 'Subject'),
+          h('select', { id: 'cs', value: scope, onchange: (e) => { S.chkScope = e.target.value; render(); } }, h('option', { value: 'all' }, 'All subjects together'), CLASSES.map((c) => h('option', { value: c.id }, c.name)))),
+        h('div', null, h('label', { for: 'co' }, 'Show'),
+          h('select', { id: 'co', value: S.chkOnly ? 'short' : 'all', onchange: (e) => { S.chkOnly = e.target.value === 'short'; render(); } }, h('option', { value: 'short' }, 'Only below 75%'), h('option', { value: 'all' }, 'Everyone'))),
+        h('button', { class: 'btn ghost small', type: 'button', onclick: () => downloadCsv('eligibility-' + scope + '-' + today + '.csv', [['Roll number', 'Attended', 'Held', 'Percent', 'Status', 'Classes to attend in a row to reach 75%']].concat(rows.map((x) => [x.roll, x.att, x.held, x.pct == null ? '' : x.pct.toFixed(1), x.held === 0 ? 'No classes yet' : x.short ? 'Below 75%' : 'Eligible', x.short ? needMore(x.att, x.held) : 0]))) }, 'Save as CSV')),
+      h('p', { class: 'note' }, h('b', null, String(shortN)), ' of ' + TOTAL + ' students are below 75% after ' + heldN + ' held ' + (scope === 'all' ? 'classes (all subjects)' : 'classes') + '. ' + (heldN === 0 ? 'No class has been held yet.' : '')),
+      h('div', { class: 'tablewrap' }, h('table', { class: 't' },
+        h('thead', null, h('tr', null, h('th', { class: 'mono' }, 'Roll number'), h('th', { class: 'c' }, 'Attended'), h('th', { class: 'c' }, 'Held'), h('th', { class: 'c' }, '%'), h('th', null, 'Status'), h('th', { class: 'c' }, 'Needs'))),
+        h('tbody', null, shown.length ? shown.map((x) => h('tr', { class: x.short ? 'short' : '' },
+          h('td', { class: 'mono' }, x.roll), h('td', { class: 'c' }, x.att), h('td', { class: 'c' }, x.held), h('td', { class: 'c' }, fmtPct(x.pct)),
+          h('td', null, h('span', { class: 'pill ' + (x.held === 0 ? 'muted' : x.short ? 'bad' : 'ok') }, x.held === 0 ? 'No classes' : x.short ? 'Below 75%' : 'Eligible')),
+          h('td', { class: 'c' }, x.short ? needMore(x.att, x.held) + ' in a row' : '-'))) : h('tr', null, h('td', { colspan: '6' }, 'Nobody is below 75%.'))))),
+      h('p', { class: 'hint' }, '"Needs" is how many classes in a row the student must attend to reach 75%. Cancelled classes are not counted. Use this list to decide who is not allowed in the exam.'));
+  }
+
+  // ---------- professor: Students (accounts) ----------
+  const makeCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; const b = new Uint32Array(8); crypto.getRandomValues(b); return Array.from(b, (x) => A[x % A.length]).join(''); };
+  function viewStudents() {
+    const have = new Map(); S.students.forEach((v) => have.set(v.roll, v));
+    const missing = ROLLS.filter((r) => !have.has(r)).length, pending = ROLLS.filter((r) => have.has(r) && !have.get(r).activated).length;
+    return h('div', { class: 'panel' },
+      h('h2', null, 'Student accounts'),
+      h('p', { class: 'note' }, h('b', null, String(TOTAL - missing)), ' of ' + TOTAL + ' accounts created. ' + pending + ' students have not set their own password yet.'),
+      h('div', { class: 'row tight' },
+        h('button', { class: 'btn', type: 'button', disabled: S.busy || missing === 0, onclick: createAccounts }, 'Create ' + missing + ' missing accounts'),
+        S.codes && S.codes.length ? h('button', { class: 'btn ghost small', type: 'button', onclick: () => downloadCsv('activation-codes-' + today + '.csv', [['Roll number', 'Activation code']].concat(S.codes)) }, 'Download activation codes') : null),
+      msgEl('stu'),
+      h('p', { class: 'hint' }, 'Each student gets a one-time activation code. They log in with their roll number and that code, then choose their own password. The codes exist only on this screen: download them right after creating, and hand each student only their own.'),
+      h('div', { class: 'tablewrap' }, h('table', { class: 't' },
+        h('thead', null, h('tr', null, h('th', { class: 'mono' }, 'Roll number'), h('th', null, 'Account'), h('th', null, 'Own password'))),
+        h('tbody', null, ROLLS.map((r) => { const s = have.get(r); return h('tr', null, h('td', { class: 'mono' }, r), h('td', null, s ? 'Created' : 'Not created'), h('td', null, s ? (s.activated ? 'Set' : 'Not yet') : '-')); })))));
+  }
+  async function createAccounts() {
+    S.busy = true; S.codes = S.codes || []; msg('stu', 'Creating accounts. Keep this page open.', 'warn');
+    let sec = firebase.apps.find((a) => a.name === 'sec');
+    if (!sec) sec = firebase.initializeApp(FIREBASE_CONFIG, 'sec');
+    const sa = sec.auth(), have = new Set(); S.students.forEach((v) => have.add(v.roll));
+    let made = 0, stuck = [];
+    try {
+      for (const roll of ROLLS) {
+        if (have.has(roll)) continue;
+        const code = makeCode();
+        try {
+          const cred = await sa.createUserWithEmailAndPassword(emailOf(roll), code);
+          await db.doc('students/' + cred.user.uid).set({ roll, activated: false, createdAt: Date.now() });
+          S.codes.push([roll, code]); made++; await sa.signOut();
+        } catch (e) {
+          if (e && e.code === 'auth/email-already-in-use') stuck.push(roll);
+          else if (e && e.code === 'auth/too-many-requests') { S.busy = false; if (S.codes.length) downloadCsv('activation-codes-' + today + '.csv', [['Roll number', 'Activation code']].concat(S.codes)); return msg('stu', made + ' accounts created, then Firebase asked to slow down. Wait an hour and press the button again. The codes created so far were downloaded.', 'warn'); }
+          else { S.busy = false; if (S.codes.length) downloadCsv('activation-codes-' + today + '.csv', [['Roll number', 'Activation code']].concat(S.codes)); return msg('stu', 'Stopped at ' + roll + ' after ' + made + ' accounts. Check that Email/Password sign-in is on, then press the button again.', 'bad'); }
+        }
+      }
+      S.busy = false;
+      if (S.codes.length) downloadCsv('activation-codes-' + today + '.csv', [['Roll number', 'Activation code']].concat(S.codes));
+      msg('stu', made + ' accounts created and the activation codes were downloaded.' + (stuck.length ? ' ' + stuck.length + ' roll numbers already have a login but no record here (' + stuck.slice(0, 3).join(', ') + (stuck.length > 3 ? ', ...' : '') + '). Delete those users in Firebase, Authentication, then press the button again.' : ''), stuck.length ? 'warn' : 'ok');
+    } catch (_) { S.busy = false; msg('stu', 'Something went wrong. Press the button again to continue.', 'bad'); }
+  }
+
+  // ---------- professor: Changes log ----------
+  async function loadAudit() {
+    try { const s = await db.collection('audit').orderBy('ts', 'desc').limit(100).get(); S.audit = s.docs.map((d) => d.data()); }
+    catch (_) { S.audit = []; }
+    render();
+  }
+  function viewLog() {
+    const label = { mark: 'Marked present', unmark: 'Removed attendance', 'cancel-class': 'Cancelled class', 'restore-class': 'Counted class again' };
+    return h('div', { class: 'panel' },
+      h('div', { class: 'row tight' }, h('h2', null, 'Changes log'), h('button', { class: 'btn ghost small', type: 'button', onclick: loadAudit }, 'Refresh')),
+      h('p', { class: 'hint' }, 'Every manual change is kept here with who made it and why. Latest 100.'),
+      S.audit == null ? h('p', { class: 'note' }, 'Loading') : S.audit.length === 0 ? h('p', { class: 'note' }, 'No manual changes yet.') :
+        h('ul', { class: 'list' }, S.audit.map((a) => h('li', null, h('b', null, label[a.action] || a.action), (a.roll ? ' ' + a.roll : ''), ' for ' + clsName(a.classId) + ' on ' + fmtDate(a.dateKey), a.reason ? '. Reason: ' + a.reason : '', h('br'), h('span', { class: 'hint' }, fmtDate(istDate(a.ts)) + ' ' + fmtTime(a.ts) + ' by ' + a.by)))));
+  }
+
+  // ---------- live clocks ----------
+  setInterval(() => {
+    document.querySelectorAll('.js-clock').forEach((el) => { el.textContent = fmtClock(parseInt(el.dataset.close, 10) - Date.now()); });
+    const o = isOpen(S.live);
+    if (o !== wasOpen) { wasOpen = o; render(); }
+  }, 1000);
+
+  // ---------- subscriptions ----------
+  const stopAll = () => { unsubs.forEach((u) => { try { u(); } catch (_) {} }); unsubs = []; };
+  const onErr = () => banner('Some data could not be loaded. Reload the page.');
+  function watchShared() {
+    unsubs.push(db.doc('live/current').onSnapshot((s) => { S.live = s.exists ? s.data() : null; render(); }, onErr));
+    unsubs.push(db.collection('calendar').onSnapshot((s) => { const c = {}; s.docs.forEach((d) => { c[d.id] = d.data(); }); S.calendar = c; render(); }, onErr));
+  }
+  function startStudent() {
+    stopAll(); watchShared();
+    unsubs.push(db.doc('records/' + S.roll).onSnapshot((s) => { S.myMarks = s.exists ? (s.data().marks || {}) : {}; render(); }, onErr));
+  }
+  function startProf() {
+    stopAll(); watchShared();
+    unsubs.push(db.collection('records').onSnapshot((s) => { const m = new Map(); s.docs.forEach((d) => m.set(d.id, d.data().marks || {})); S.records = m; render(); }, onErr));
+    unsubs.push(db.collection('students').onSnapshot((s) => { const m = new Map(); s.docs.forEach((d) => m.set(d.id, d.data())); S.students = m; render(); }, onErr));
+  }
+
+  // ---------- boot ----------
+  const configured = FIREBASE_CONFIG.apiKey && !/^PASTE/.test(FIREBASE_CONFIG.apiKey);
+  if (!window.firebase) { banner('Could not load Firebase. Check your internet connection and reload.'); return; }
+  if (!configured) { banner('Firebase is not set up yet. Follow SETUP.md and paste your config into index.html.'); return; }
+  firebase.initializeApp(FIREBASE_CONFIG);
+  auth = firebase.auth(); db = firebase.firestore(); FV = firebase.firestore.FieldValue; FP = firebase.firestore.FieldPath;
+  auth.onAuthStateChanged(async (u) => {
+    stopAll(); S.user = u; S.ready = true; S.live = null; S.myMarks = {}; S.records = new Map(); S.students = new Map(); S.pending = null; S.msgs = {}; S.audit = null;
+    if (!u) { S.role = null; render(); return; }
+    const em = u.email || '';
+    if (em.endsWith('@' + DOMAIN)) {
+      S.role = 'student'; S.roll = em.split('@')[0];
+      try {
+        const d = await db.doc('students/' + u.uid).get();
+        if (!d.exists || d.data().roll !== S.roll) { banner('Your account is not set up for this class. Ask your professor.'); auth.signOut(); return; }
+        S.activated = !!d.data().activated; banner('');
+        if (S.activated) startStudent();
+      } catch (_) { banner('Could not load your account. Reload the page.'); }
+    } else { S.role = 'prof'; S.tab = 'day'; banner(''); startProf(); }
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
