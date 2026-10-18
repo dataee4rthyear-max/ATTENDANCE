@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Attendance Controller</title>
+<title>AgixOn Verified Attendance Platform</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 :root {
@@ -121,17 +122,71 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
 .list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
 .list li { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; overflow-wrap: anywhere; }
 @media (max-width: 480px) { .status { grid-template-columns: auto minmax(0, 1fr); } .clock { grid-column: 1 / -1; } }
+.day.hol { background: var(--warn-soft); }
+textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--muted); border-radius: 8px; background: var(--surface); color: var(--ink); font: 500 15px var(--f-mono); }
+.batchbar { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 12px; }
+.batchbar > div { flex: 1 1 200px; }
+
+/* ---- premium theme ---- */
+:root { --bg:#f3f4fb; --surface:#fff; --ink:#0f1530; --muted:#5b6482; --line:#e3e6f1; --accent:#4338ca; --accent-ink:#fff; --ok:#0f8a5f; --ok-soft:#dcf5ea; --warn:#92600a; --warn-soft:#fdf1d3; --bad:#c2312a; --bad-soft:#fde4e2;
+  --f-display:'Plus Jakarta Sans',system-ui,sans-serif; --f-body:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --shadow:0 1px 2px rgba(15,21,48,.05),0 8px 24px rgba(15,21,48,.07); --grad:linear-gradient(135deg,#6d5dfc,#4338ca); }
+@media (prefers-color-scheme: dark) { :root { --bg:#0a0e1e; --surface:#131933; --ink:#eceffd; --muted:#9aa3c7; --line:#252c52; --accent:#8b8cff; --accent-ink:#0a0e1e; --ok:#4fd1a1; --ok-soft:#10372c; --warn:#f0bd5a; --warn-soft:#3b2d0e; --bad:#ff8a82; --bad-soft:#401a1a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35); --grad:linear-gradient(135deg,#8b8cff,#5b5be0); } }
+body { background: radial-gradient(1100px 480px at 50% -220px, rgba(109,93,252,.18), transparent), var(--bg); font: 15px/1.55 var(--f-body); -webkit-font-smoothing: antialiased; }
+h1,h2,h3,.btn,.nav button,.pill,.pct { text-transform: none; letter-spacing: -.01em; font-family: var(--f-body); }
+h1 { margin: 2px 0 0; font-weight: 800; font-size: clamp(26px,6vw,38px); line-height: 1.1; }
+h1 span { display: block; margin-top: 4px; font-size: .46em; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+h2 { font-size: 19px; font-weight: 700; } h3 { font-size: 16px; font-weight: 700; }
+label,.lbl { font: 700 12px var(--f-body); letter-spacing: .08em; }
+.kicker { font: 700 11px var(--f-body); letter-spacing: .12em; }
+header.hero { display: flex; gap: 16px; align-items: center; padding: 20px 22px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: var(--shadow); }
+.logo { width: 58px; height: 58px; flex: 0 0 auto; filter: drop-shadow(0 6px 10px rgba(67,56,202,.3)); }
+.panel { padding: 22px; border-radius: 18px; border-color: var(--line); box-shadow: var(--shadow); }
+.nav { padding: 4px; border-radius: 14px; box-shadow: var(--shadow); }
+.nav button { padding: 9px 16px; border-radius: 10px; font: 600 14px var(--f-body); letter-spacing: 0; }
+.nav button[aria-selected="true"] { background: var(--grad); color: #fff; }
+.btn { padding: 13px 24px; border-radius: 12px; background: var(--grad); color: #fff; font: 700 15px var(--f-body); letter-spacing: 0; box-shadow: 0 6px 16px rgba(67,56,202,.28); transition: transform .12s; }
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: none; border: 1px solid var(--line); }
+.btn.small { padding: 9px 16px; font-size: 14px; }
+input[type="text"],input[type="date"],input[type="month"],input[type="email"],input[type="password"],select,textarea { border-radius: 12px; border: 1px solid var(--line); background: var(--bg); }
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible { outline: 3px solid rgba(109,93,252,.45); outline-offset: 2px; }
+.card { padding: 18px; border-radius: 16px; background: var(--bg); }
+.pct { font-weight: 800; font-size: 44px; }
+.bar { height: 10px; border-radius: 99px; } .bar i { border-radius: 99px; background: linear-gradient(90deg,#10b981,#34d399); } .bar.short i { background: linear-gradient(90deg,#ef4444,#f87171); }
+.pill { padding: 3px 10px; font: 700 12px var(--f-body); letter-spacing: .02em; }
+.cell,.day,.cls span,.livebox,.confirm,.list li,.result { border-radius: 12px; }
+.cls span { font: 600 15px var(--f-body); text-transform: none; letter-spacing: 0; }
+.day.today { box-shadow: inset 0 0 0 1px var(--accent); }
+.tablewrap { border-radius: 14px; } .t th { font: 700 11px var(--f-body); letter-spacing: .08em; }
+.login { max-width: 440px; margin-inline: auto; }
+.linkgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px; }
+.linkgrid a { display: flex; justify-content: space-between; gap: 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--ink); font-weight: 600; text-decoration: none; }
+.linkgrid a:hover { border-color: var(--accent); }
+.foot a { color: inherit; }
+.codebox { display: grid; justify-items: center; gap: 4px; padding: 14px; border: 2px dashed var(--accent); border-radius: 14px; }
+.codebox b { font: 700 46px var(--f-mono); letter-spacing: .3em; padding-left: .3em; }
+.foot { margin: 28px 0 0; text-align: center; color: var(--muted); font-size: 12px; }
 </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4338ca">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <p class="kicker">Rajkiya Engineering College, Ambedkar Nagar</p>
-    <h1>Attendance Controller</h1>
-    <p class="sub">Final year, Electrical Engineering. Roll numbers 2307370200001 to 2307370200070.</p>
+  <header class="hero">
+    <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d5dfc"/><stop offset="1" stop-color="#4338ca"/></linearGradient></defs><rect width="48" height="48" rx="13" fill="url(#lg)"/><path d="M24 9l12 4.5v9.5c0 8.5-5.200 13.500-12 15.500-6.800-2-12-7-12-15.500v-9.500z" fill="none" stroke="#fff" stroke-width="2.400" stroke-linejoin="round"/><path d="M18.500 24l4.300 4.300 7.200-8.300" fill="none" stroke="#f5b942" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>
+      <p class="kicker">Rajkiya Engineering College (REC), Ambedkar Nagar</p>
+      <h1>AgixOn <span>Verified Attendance Platform</span></h1>
+    </div>
   </header>
   <div id="banner" class="banner" hidden></div>
   <div id="app"></div>
+  <p class="foot">AgixOn Verified Attendance Platform &middot; <a href="https://recabn.ac.in/" target="_blank" rel="noopener noreferrer">recabn.ac.in</a></p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -150,23 +205,16 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
 
 <script>
 (() => {
-  const PREFIX = '23073702', TOTAL = 70, RADIUS = 50, CRIT = 75;
+  let TOTAL = 0; const RADIUS = 50, CRIT = 75;
   const DOMAIN = 'students.example.com';
-  const CLASSES = [
-    { id: 'epd', name: 'Electric Power Drives' },
-    { id: 're', name: 'Renewable Energy' },
-    { id: 'psp', name: 'Power System Protection' }
-  ];
+  let CLASSES = [], ROLLS = [];
   const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const MONTH_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   // ---------- small helpers ----------
   const $ = (id) => document.getElementById(id);
-  const rollOf = (n) => PREFIX + String(n).padStart(5, '0');
-  const ROLLS = Array.from({ length: TOTAL }, (_, i) => rollOf(i + 1));
-  const emailOf = (roll) => roll + '@' + DOMAIN;
+  const emailOf = (roll, v) => roll + (v ? '.r' + v : '') + '@' + DOMAIN;
   const clsName = (id) => (CLASSES.find((c) => c.id === id) || {}).name || id;
-  const validRoll = (r) => { if (!/^\d{13}$/.test(r) || r.slice(0, 8) !== PREFIX) return false; const n = parseInt(r.slice(8), 10); return n >= 1 && n <= TOTAL; };
   const istDate = (ms) => new Date((ms || Date.now()) + 19800000).toISOString().slice(0, 10);
   const fmtTime = (ms) => new Date(ms).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' });
   const fmtDate = (dk) => { const [y, m, d] = dk.split('-'); return parseInt(d, 10) + ' ' + MON[parseInt(m, 10) - 1] + ' ' + y; };
@@ -251,20 +299,50 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
     return 'Present at ' + fmtTime(m.ts) + (m.dist != null ? ', ' + m.dist + ' m from the classroom' : '');
   }
 
+  const devId = () => {
+    try {
+      let d = localStorage.getItem('agx_dev');
+      if (!d) { d = Array.from(crypto.getRandomValues(new Uint8Array(16)), (x) => x.toString(16).padStart(2, '0')).join(''); localStorage.setItem('agx_dev', d); }
+      return d;
+    } catch (_) { return ''; }
+  };
+
+  // ---------- branch / year / holidays ----------
+  const branchesOf = () => (S.config && S.config.branches) || [];
+  const yearsOf = () => (S.config && S.config.years) || [];
+  const holiday = (dk) => ((S.config || {}).holidays || {})[dk];
+  const curBatch = () => { const b = branchesOf(), y = yearsOf(); if (!b.includes(S.branch)) S.branch = b[0]; if (!y.includes(S.year)) S.year = y[0]; return (S.branch || '') + '|' + (S.year || ''); };
+  function recompute() {
+    const subs = (S.config && S.config.subjects) || [], b = S.role === 'student' ? (S.sbatch || '') : curBatch();
+    CLASSES = subs.filter((x) => x.branch + '|' + x.year === b).map((x) => ({ id: x.id, name: x.name }));
+    ROLLS = [];
+    if (S.role === 'prof') S.students.forEach((v) => { if (!v.disabled && (v.batch || '') === b) ROLLS.push(v.roll); });
+    ROLLS.sort(); TOTAL = ROLLS.length;
+    if (!CLASSES.some((c) => c.id === S.cls)) S.cls = (CLASSES[0] || {}).id;
+    if (!CLASSES.some((c) => c.id === S.regCls)) S.regCls = (CLASSES[0] || {}).id;
+  }
+  function batchBar() {
+    const mk = (id, lab, arr, cur, on) => h('div', null, h('label', { for: id }, lab), h('select', { id, value: cur, onchange: (e) => { on(e.target.value); S.pending = null; render(); } }, arr.length ? arr.map((x) => h('option', { value: x }, x)) : h('option', { value: '' }, 'Add in Setup')));
+    curBatch();
+    return h('div', { class: 'batchbar' }, mk('bb', 'Branch', branchesOf(), S.branch, (v) => { S.branch = v; }), mk('by', 'Year', yearsOf(), S.year, (v) => { S.year = v; }));
+  }
+
   // ---------- rendering ----------
   function render() { cancelAnimationFrame(rq); rq = requestAnimationFrame(doRender); }
   function doRender() {
     const app = $('app');
-    app.replaceChildren();
+    app.replaceChildren(); recompute();
     if (!S.ready) return;
     if (!S.user) { app.append(viewLogin()); return; }
     if (S.role === 'student') {
       if (!S.activated) { app.append(viewSetPassword()); return; }
-      app.append(navBar([['dash', 'My attendance']], 'dash'), viewStudent());
+      app.append(navBar([['dash', 'My attendance'], ['college', 'College']], S.tab === 'college' ? 'college' : 'dash'), S.tab === 'college' ? viewCollege() : viewStudent());
       return;
     }
-    app.append(navBar([['day', 'Day'], ['reg', 'Register'], ['chk', '75% check'], ['stu', 'Students'], ['log', 'Changes']], S.tab));
-    app.append(({ day: viewDay, reg: viewRegister, chk: viewCheck, stu: viewStudents, log: viewLog }[S.tab] || viewDay)());
+    app.append(navBar([['day', 'Day'], ['reg', 'Register'], ['chk', '75% check'], ['stu', 'Students'], ['log', 'Changes'], ['setup', 'Setup'], ['college', 'College']], S.tab), batchBar());
+    app.append(!CLASSES.length && !['setup', 'stu', 'college'].includes(S.tab)
+      ? h('div', { class: 'panel' }, h('p', { class: 'note' }, 'There is no subject for this branch and year yet. Open Setup and add the branch, year and subjects first.'))
+      : ({ day: viewDay, reg: viewRegister, chk: viewCheck, stu: viewStudents, log: viewLog, setup: viewSetup, college: viewCollege }[S.tab] || viewDay)());
   }
   function navBar(items, cur) {
     return h('nav', { class: 'nav' },
@@ -283,20 +361,26 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
       const v = id.value.trim();
       if (!v || !pw.value) return say('Enter your ID and password.', 'bad');
       let email = v;
-      if (/^\d+$/.test(v)) { if (!validRoll(v)) return say('That roll number is not in this class.', 'bad'); email = emailOf(v); }
+      if (!v.includes('@')) { let ver = 0; try { const d = await db.doc('loginver/' + v).get(); ver = d.exists ? (d.data().v || 0) : 0; } catch (_) {} email = emailOf(v, ver); }
       say('Logging in', 'warn');
       try { await auth.signInWithEmailAndPassword(email, pw.value); }
       catch (e) {
         say(e && e.code === 'auth/too-many-requests' ? 'Too many tries. Wait a few minutes and try again.' : 'ID or password is wrong.', 'bad');
       }
     }
+    async function forgot() {
+      const v = id.value.trim();
+      if (!v.includes('@')) return say('Professors: type your email in the first box, then press this again. Students: ask your professor to help.', 'warn');
+      try { await auth.sendPasswordResetEmail(v); say('If that email has an account, a reset link has been sent. Check Inbox and Spam.', 'ok'); }
+      catch (_) { say('Could not send the link. Check the email and try again.', 'bad'); }
+    }
     pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
-    return h('div', { class: 'panel' },
+    return h('div', { class: 'panel login' },
       h('h2', null, 'Log in'),
       h('div', null, h('label', { for: 'lid' }, 'College ID (roll number)'), id, h('p', { class: 'hint' }, 'Professors use their email here.')),
       h('div', null, h('label', { for: 'lpw' }, 'Password'), pw),
       h('p', { class: 'hint' }, 'First time? Your password is the activation code your professor gave you. You will choose your own password right after.'),
-      h('div', null, h('button', { class: 'btn', type: 'button', onclick: go }, 'Log in')),
+      h('div', { class: 'row tight' }, h('button', { class: 'btn', type: 'button', onclick: go }, 'Log in'), h('button', { class: 'btn ghost small', type: 'button', onclick: forgot }, 'Forgot password?')),
       out);
   }
   function viewSetPassword() {
@@ -305,12 +389,14 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
     const out = h('p', { class: 'result', hidden: true, role: 'status' });
     const say = (t, k) => { out.textContent = t; out.className = 'result ' + k; out.hidden = !t; };
     async function go() {
+      if (!devId()) return say('This browser blocks storage. Use Chrome or Safari normally, not private mode.', 'bad');
       if (p1.value.length < 8) return say('Use at least 8 characters.', 'bad');
+      if (p1.value === S.roll) return say('Do not use your roll number as the password.', 'bad');
       if (p1.value !== p2.value) return say('The two passwords do not match.', 'bad');
       say('Saving', 'warn');
       try {
         await auth.currentUser.updatePassword(p1.value);
-        await db.doc('students/' + S.user.uid).update({ activated: true });
+        await db.doc('students/' + S.user.uid).update({ activated: true, device: devId() });
         S.activated = true; startStudent(); render();
       } catch (e) {
         say(e && e.code === 'auth/requires-recent-login' ? 'Please log out and log in again, then set the password.' : 'Could not save the password. Try again.', 'bad');
@@ -342,9 +428,10 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
   }
   function viewStudent() {
     const wrap = h('div');
+    if (S.devOk === false) wrap.append(h('div', { class: 'panel' }, h('p', { class: 'result bad' }, 'This phone is not registered for your account, so you cannot mark attendance here. Ask your professor to reset your phone.')));
     // mark card
     const l = S.live;
-    if (isOpen(l)) {
+    if (isOpen(l) && (l.batch || '') === (S.sbatch || '')) {
       const done = S.myMarks[markKey(l.classId, l.dateKey)];
       wrap.append(h('div', { class: 'panel' },
         h('div', { class: 'status' },
@@ -353,7 +440,7 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
             h('p', { class: 'status-meta' }, 'Closes at ' + fmtTime(l.closesAt) + (l.geo ? '. You must be within 50 m of the classroom.' : '. Location is not checked for this window.'))),
           h('div', { class: 'clock js-clock', 'data-close': l.closesAt }, fmtClock(l.closesAt - Date.now()))),
         done ? h('p', { class: 'result ok' }, 'You are marked present. ' + markText(done))
-          : h('div', null, h('button', { class: 'btn', type: 'button', disabled: S.busy, onclick: studentMark }, 'Mark me present')),
+          : h('div', { class: 'row' }, h('div', null, h('label', { for: 'ccode' }, 'Class code (on the board)'), h('input', { type: 'text', id: 'ccode', inputmode: 'numeric', maxlength: '4', autocomplete: 'off', value: S.ccode || '', oninput: (e) => { S.ccode = e.target.value.replace(/\D/g, ''); } })), h('button', { class: 'btn', type: 'button', disabled: S.busy || S.devOk === false, onclick: studentMark }, 'Mark me present')),
         msgEl('mark')));
     } else if (S.msgs.mark) wrap.append(h('div', { class: 'panel' }, msgEl('mark')));
 
@@ -386,7 +473,7 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
         if (info.cancelled) return h('span', { class: 'dot c', title: c.name + ' cancelled' });
         return h('span', { class: 'dot ' + (S.myMarks[markKey(c.id, dk)] ? 'p' : 'a'), title: c.name });
       });
-      grid.append(h('button', { type: 'button', class: 'day' + (dk === S.selDate ? ' sel' : '') + (dk === today ? ' today' : ''), onclick: () => { S.selDate = dk; render(); } }, String(d), h('span', { class: 'dots' }, dots)));
+      grid.append(h('button', { type: 'button', class: 'day' + (dk === S.selDate ? ' sel' : '') + (dk === today ? ' today' : '') + (holiday(dk) ? ' hol' : ''), onclick: () => { S.selDate = dk; render(); } }, String(d), h('span', { class: 'dots' }, dots)));
     }
     const dk = S.selDate, rows = [];
     for (const c of CLASSES) {
@@ -401,13 +488,14 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
       h('div', { class: 'legend' }, h('span', null, h('i', { class: 'dot p' }), 'Present'), h('span', null, h('i', { class: 'dot a' }), 'Absent'), h('span', null, h('i', { class: 'dot c' }), 'Cancelled')),
       grid,
       h('h3', null, fmtDate(dk)),
-      rows.length ? h('ul', { class: 'list' }, rows) : h('p', { class: 'note' }, 'No class was held on this day.'));
+      rows.length ? h('ul', { class: 'list' }, rows) : h('p', { class: 'note' }, holiday(dk) ? 'Holiday: ' + holiday(dk) : 'No class was held on this day.'));
   }
   async function studentMark() {
     const win = S.live;
     if (!isOpen(win)) return msg('mark', 'The attendance window is closed.', 'bad');
     const key = markKey(win.classId, win.dateKey);
     if (S.myMarks[key]) return msg('mark', 'You are already marked for this class.', 'ok');
+    if (!/^\d{4}$/.test(S.ccode || '')) return msg('mark', 'Enter the 4-digit class code shown on the board.', 'bad');
     S.busy = true; msg('mark', win.geo ? 'Reading your location' : 'Saving', 'warn');
     try {
       let dist = null, acc = null;
@@ -421,12 +509,12 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
       if (!isOpen(S.live) || S.live.sessionId !== win.sessionId) { S.busy = false; return msg('mark', 'The attendance window closed before it could be saved.', 'bad'); }
       await db.doc('records/' + S.roll).set({
         roll: S.roll,
-        marks: { [key]: { ts: Date.now(), dist: dist == null ? null : Math.round(dist), acc: acc == null ? null : Math.round(acc), method: win.geo ? 'gps' : 'no-location', sid: win.sessionId } }
+        marks: { [key]: { ts: Date.now(), dist: dist == null ? null : Math.round(dist), acc: acc == null ? null : Math.round(acc), method: win.geo ? 'gps' : 'no-location', sid: win.sessionId, dev: devId(), code: S.ccode } }
       }, { merge: true });
-      S.busy = false; msg('mark', '', '');
+      S.busy = false; S.ccode = ''; msg('mark', '', '');
     } catch (e) {
       S.busy = false;
-      msg('mark', e && e.code === 'permission-denied' ? 'The window has just closed, so this could not be saved. Ask your professor to mark you.' : 'Could not save your attendance. Check your connection and try again.', 'bad');
+      msg('mark', e && e.code === 'permission-denied' ? 'Could not save. The class code may be wrong, or the window has just closed. Check the code and try again, or ask your professor to mark you.' : 'Could not save your attendance. Check your connection and try again.', 'bad');
     }
   }
 
@@ -458,6 +546,7 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
           h('div', null, h('p', { class: 'status-title' }, l.className + (open ? ' is open' : ' window has ended')),
             h('p', { class: 'status-meta' }, (open ? 'Closes at ' : 'Ended at ') + fmtTime(l.closesAt) + (l.geo ? '. Centre fixed, GPS accuracy about ' + Math.round(l.acc || 0) + ' m.' : '. No location check.'))),
           h('div', { class: 'clock js-clock', 'data-close': l.closesAt }, open ? fmtClock(l.closesAt - Date.now()) : '00:00')),
+        open && S.secret && S.secret.sessionId === l.sessionId ? h('div', { class: 'codebox' }, h('span', { class: 'lbl' }, 'Class code: write it on the board'), h('b', null, S.secret.code)) : null,
         h('div', { class: 'row tight' },
           h('button', { class: 'btn small', type: 'button', disabled: !open, onclick: closeWindow }, 'Close now'),
           h('button', { class: 'btn ghost small', type: 'button', disabled: !!l.closed, onclick: extendWindow }, 'Add 1 minute'))) : null));
@@ -474,6 +563,7 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
         h('div', null, h('label', { for: 'dd' }, 'Date'), h('input', { type: 'date', id: 'dd', value: S.date, max: today, onchange: (e) => { if (e.target.value) { S.date = e.target.value; S.pending = null; render(); } } }))),
       h('p', { class: 'note' }, info ? (info.cancelled ? 'This class is marked as cancelled, so it is not counted in anyone\'s percentage.' : 'This class was held and counts in everyone\'s percentage.') : 'No class is recorded for this day yet. Marking a student present will record the class as held.'),
       info ? h('div', null, h('button', { class: 'btn ghost small', type: 'button', onclick: () => setCancelled(!info.cancelled) }, info.cancelled ? 'Count this class again' : 'Cancel this class (do not count)')) : null,
+      holiday(S.date) ? h('p', { class: 'result warn' }, 'Holiday: ' + holiday(S.date)) : null,
       h('p', { class: 'count' }, h('b', null, String(n)), ' of ' + TOTAL + ' present'),
       h('div', { class: 'grid' }, ROLLS.map((r, i) => {
         const on = !!marks(r), m = marks(r);
@@ -523,6 +613,7 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
   }
   async function openWindow(noGeo) {
     S.needNoGeo = false;
+    const hol = holiday(istDate()); if (hol) return msg('open', 'Today is a holiday (' + hol + '). Remove it in Setup if the class is really held.', 'bad');
     const el = document.querySelector('input[name="cls"]:checked');
     const classId = el ? el.value : S.cls, mins = parseInt(($('dur') || {}).value || S.dur || '5', 10);
     S.cls = classId; S.busy = true; msg('open', noGeo ? 'Opening' : 'Reading your location', 'warn');
@@ -532,13 +623,14 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
         try { const p = await getPos(); g = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy }; }
         catch (e) { S.busy = false; S.needNoGeo = true; return msg('open', geoMsg(e) + ' You can still open this window without the 50 m check. Students will see that location is not checked.', 'bad'); }
       }
-      const now = Date.now(), dk = istDate(now), batch = db.batch();
+      const now = Date.now(), dk = istDate(now), batch = db.batch(), sid = 's' + now.toString(36), code = String(1000 + crypto.getRandomValues(new Uint32Array(1))[0] % 9000);
       batch.set(db.doc('live/current'), {
-        sessionId: 's' + now.toString(36), classId, className: clsName(classId), dateKey: dk,
+        sessionId: sid, batch: curBatch(), classId, className: clsName(classId), dateKey: dk,
         openedAt: now, closesAt: now + mins * 60000, closed: false, geo: !!g,
         lat: g ? g.lat : null, lng: g ? g.lng : null, acc: g ? Math.round(g.acc) : null, radius: RADIUS
       });
       batch.set(db.doc('calendar/' + classId), { classId, dates: { [dk]: { cancelled: false, openedAt: now } } }, { merge: true });
+      batch.set(db.doc('secret/current'), { code, sessionId: sid });
       await batch.commit();
       S.date = dk; S.busy = false;
       msg('open', g && g.acc > 25 ? 'Window open. Your GPS is accurate to about ' + Math.round(g.acc) + ' m, so a spot near a window gives a tighter circle.' : 'Window open for ' + mins + ' minutes.', g && g.acc > 25 ? 'warn' : 'ok');
@@ -562,7 +654,7 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
         return h('td', { class: cx ? 'a' : on ? 'p' : 'a', title: r + ' ' + fmtDate(d) }, cx ? '/' : on ? 'P' : '-');
       });
       const st = statFor(marks, cid);
-      return h('tr', { class: isShort(st.att, st.held) ? 'short' : '' }, h('td', { class: 'sticky mono' }, r.slice(8)), cells, h('td', { class: 'c' }, mp + '/' + mh), h('td', { class: 'c' }, fmtPct(pctOf(st.att, st.held))));
+      return h('tr', { class: isShort(st.att, st.held) ? 'short' : '' }, h('td', { class: 'sticky mono' }, r.slice(-5)), cells, h('td', { class: 'c' }, mp + '/' + mh), h('td', { class: 'c' }, fmtPct(pctOf(st.att, st.held))));
     });
     return h('div', { class: 'panel' },
       h('h2', null, 'Attendance register'),
@@ -570,7 +662,7 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
         h('div', null, h('label', { for: 'rc' }, 'Class'), classSelect('rc', cid, (v) => { S.regCls = v; render(); })),
         h('div', null, h('label', { for: 'rm' }, 'Month'), h('input', { type: 'month', id: 'rm', value: mk, onchange: (e) => { if (e.target.value) { S.regMonth = e.target.value; render(); } } })),
         h('button', { class: 'btn ghost small', type: 'button', onclick: () => exportRegister(cid, mk, dates) }, 'Save as CSV')),
-      h('p', { class: 'hint' }, 'Roll shown as the last 5 digits after ' + PREFIX + '. P present, - absent, / class cancelled. Tap a date to open that day. Term % counts all held classes of this subject. Red rows are below 75%.'),
+      h('p', { class: 'hint' }, 'Roll shown as the last 5 digits. P present, - absent, / class cancelled. Tap a date to open that day. Term % counts all held classes of this subject. Red rows are below 75%.'),
       dates.length ? h('div', { class: 'tablewrap' }, h('table', { class: 't' }, h('thead', null, head), h('tbody', null, body))) : h('p', { class: 'note' }, 'No class was held for ' + clsName(cid) + ' in ' + fmtMonth(mk) + '.'));
   }
   function exportRegister(cid, mk, dates) {
@@ -615,34 +707,74 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
 
   // ---------- professor: Students (accounts) ----------
   const makeCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; const b = new Uint32Array(8); crypto.getRandomValues(b); return Array.from(b, (x) => A[x % A.length]).join(''); };
+  function parseRolls(t) {
+    const out = [];
+    t.split(/[\s,;]+/).filter(Boolean).forEach((x) => {
+      const m = x.match(/^(\d+)-(\d+)$/);
+      if (m && m[1].length === m[2].length && +m[2] - +m[1] < 2000 && +m[2] >= +m[1]) { for (let n = +m[1]; n <= +m[2]; n++) out.push(String(n).padStart(m[1].length, '0')); }
+      else if (/^[A-Za-z0-9]{4,20}$/.test(x)) out.push(x);
+    });
+    return [...new Set(out)];
+  }
   function viewStudents() {
-    const have = new Map(); S.students.forEach((v) => have.set(v.roll, v));
-    const missing = ROLLS.filter((r) => !have.has(r)).length, pending = ROLLS.filter((r) => have.has(r) && !have.get(r).activated).length;
+    const have = new Map(); S.students.forEach((v) => { if (!v.disabled) have.set(v.roll, v); });
+    const ready = branchesOf().length && yearsOf().length, pending = ROLLS.filter((r) => have.get(r) && !have.get(r).activated).length;
     return h('div', { class: 'panel' },
       h('h2', null, 'Student accounts'),
-      h('p', { class: 'note' }, h('b', null, String(TOTAL - missing)), ' of ' + TOTAL + ' accounts created. ' + pending + ' students have not set their own password yet.'),
+      !ready ? h('p', { class: 'result warn' }, 'First add a branch and a year in Setup.') : null,
+      h('p', { class: 'note' }, h('b', null, String(TOTAL)), ' students in ' + (S.branch || '-') + ', ' + (S.year || '-') + '. ' + pending + ' have not set their own password yet.'),
+      h('div', null, h('label', { for: 'newrolls' }, 'Add roll numbers to this branch and year'),
+        h('textarea', { id: 'newrolls', rows: '4', value: S.newrolls || '', placeholder: 'One per line, or a range like 2407370200001-2407370200070', oninput: (e) => { S.newrolls = e.target.value; } })),
       h('div', { class: 'row tight' },
-        h('button', { class: 'btn', type: 'button', disabled: S.busy || missing === 0, onclick: createAccounts }, 'Create ' + missing + ' missing accounts'),
+        h('button', { class: 'btn', type: 'button', disabled: S.busy || !ready, onclick: createAccounts }, 'Create accounts'),
         S.codes && S.codes.length ? h('button', { class: 'btn ghost small', type: 'button', onclick: () => downloadCsv('activation-codes-' + today + '.csv', [['Roll number', 'Activation code']].concat(S.codes)) }, 'Download activation codes') : null),
       msgEl('stu'),
-      h('p', { class: 'hint' }, 'Each student gets a one-time activation code. They log in with their roll number and that code, then choose their own password. The codes exist only on this screen: download them right after creating, and hand each student only their own.'),
+      h('p', { class: 'hint' }, 'Each new student gets a one-time activation code. They log in with their roll number and that code, then choose their own password. The codes exist only on this screen: download them right after creating, and hand each student only their own.'),
       h('div', { class: 'tablewrap' }, h('table', { class: 't' },
-        h('thead', null, h('tr', null, h('th', { class: 'mono' }, 'Roll number'), h('th', null, 'Account'), h('th', null, 'Own password'))),
-        h('tbody', null, ROLLS.map((r) => { const s = have.get(r); return h('tr', null, h('td', { class: 'mono' }, r), h('td', null, s ? 'Created' : 'Not created'), h('td', null, s ? (s.activated ? 'Set' : 'Not yet') : '-')); })))));
+        h('thead', null, h('tr', null, h('th', { class: 'mono' }, 'Roll number'), h('th', null, 'Own password'), h('th', null, 'Phone'), h('th', null, 'Help'))),
+        h('tbody', null, ROLLS.map((r) => { const x = have.get(r) || {}; return h('tr', null, h('td', { class: 'mono' }, r), h('td', null, x.activated ? 'Set' : 'Not yet'), h('td', null, x.device ? 'Registered' : '-'), h('td', null, h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy, onclick: () => resetLogin(x) }, 'New code'), ' ', h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy || !x.device, onclick: () => resetDevice(x) }, 'Reset phone'))); })))));
+  }
+  async function resetDevice(x) {
+    if (!confirm('Reset the registered phone of ' + x.roll + '? The student can register a new phone at the next login.')) return;
+    S.busy = true;
+    try {
+      const b = db.batch(); b.update(db.doc('students/' + x.uid), { device: '' });
+      await auditAdd(b, { action: 'reset-device', roll: x.roll, classId: '', dateKey: today, reason: '' });
+      await b.commit(); S.busy = false; msg('stu', 'Phone reset for ' + x.roll + '. The student logs in on the new phone.', 'ok');
+    } catch (_) { S.busy = false; msg('stu', 'Could not reset. Try again.', 'bad'); }
+  }
+  async function resetLogin(x) {
+    if (!confirm('Give ' + x.roll + ' a new activation code? The old password stops working. Saved attendance is not lost.')) return;
+    S.busy = true; msg('stu', 'Creating a new login', 'warn');
+    try {
+      let sec = firebase.apps.find((a) => a.name === 'sec'); if (!sec) sec = firebase.initializeApp(FIREBASE_CONFIG, 'sec');
+      const sa = sec.auth(), v = (x.v || 0) + 1, code = makeCode();
+      const cred = await sa.createUserWithEmailAndPassword(emailOf(x.roll, v), code); await sa.signOut();
+      const b = db.batch();
+      b.set(db.doc('students/' + cred.user.uid), { roll: x.roll, branch: x.branch || '', year: x.year || '', batch: x.batch || '', v, activated: false, createdAt: Date.now() });
+      b.update(db.doc('students/' + x.uid), { disabled: true });
+      b.set(db.doc('loginver/' + x.roll), { v });
+      await auditAdd(b, { action: 'reset-login', roll: x.roll, classId: '', dateKey: today, reason: '' });
+      await b.commit(); S.busy = false;
+      msg('stu', 'New code for ' + x.roll + ': ' + code + '   Give it only to this student. It is shown once.', 'ok');
+    } catch (_) { S.busy = false; msg('stu', 'Could not create the new login. Check your connection and try again.', 'bad'); }
   }
   async function createAccounts() {
+    const list = parseRolls(S.newrolls || ''); curBatch();
+    if (!list.length) return msg('stu', 'Type or paste roll numbers first.', 'bad');
+    const nb = S.branch + '|' + S.year, nbr = S.branch, nyr = S.year;
     S.busy = true; S.codes = S.codes || []; msg('stu', 'Creating accounts. Keep this page open.', 'warn');
     let sec = firebase.apps.find((a) => a.name === 'sec');
     if (!sec) sec = firebase.initializeApp(FIREBASE_CONFIG, 'sec');
     const sa = sec.auth(), have = new Set(); S.students.forEach((v) => have.add(v.roll));
     let made = 0, stuck = [];
     try {
-      for (const roll of ROLLS) {
+      for (const roll of list) {
         if (have.has(roll)) continue;
         const code = makeCode();
         try {
           const cred = await sa.createUserWithEmailAndPassword(emailOf(roll), code);
-          await db.doc('students/' + cred.user.uid).set({ roll, activated: false, createdAt: Date.now() });
+          await db.doc('students/' + cred.user.uid).set({ roll, branch: nbr, year: nyr, batch: nb, activated: false, createdAt: Date.now() });
           S.codes.push([roll, code]); made++; await sa.signOut();
         } catch (e) {
           if (e && e.code === 'auth/email-already-in-use') stuck.push(roll);
@@ -656,6 +788,102 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
     } catch (_) { S.busy = false; msg('stu', 'Something went wrong. Press the button again to continue.', 'bad'); }
   }
 
+  // ---------- professor: Setup ----------
+  async function saveCfg(patch, ok) {
+    S.busy = true;
+    try { await db.doc('config/main').set(patch, { merge: true }); S.busy = false; msg('cfg', ok, 'ok'); }
+    catch (_) { S.busy = false; msg('cfg', 'Could not save. Check your connection and try again.', 'bad'); }
+  }
+  const raw = (id) => ($(id) || {}).value || '';
+  async function changePw() {
+    const cur = raw('cpw'), nw = raw('npw');
+    if (nw.length < 8) return msg('sec', 'Use at least 8 characters for the new password.', 'bad');
+    try {
+      await S.user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(S.user.email, cur));
+      await S.user.updatePassword(nw);
+      msg('sec', 'Password changed. Any other device that was logged in is signed out within about an hour.', 'ok');
+    } catch (e) { msg('sec', e && /wrong-password|invalid-credential/.test(e.code) ? 'The current password is wrong.' : 'Could not change the password. Try again.', 'bad'); }
+  }
+  async function mailReset() { try { await auth.sendPasswordResetEmail(S.user.email); msg('sec', 'Reset link sent to ' + S.user.email + '. Check Inbox and Spam.', 'ok'); } catch (_) { msg('sec', 'Could not send the link. Try again.', 'bad'); } }
+  function accountPanel() {
+    return h('div', { class: 'panel' }, h('h2', null, 'Account security'), msgEl('sec'),
+      h('p', { class: 'note' }, 'Logged in as ' + S.user.email + '. Keep this password private.'),
+      h('div', { class: 'row' }, h('div', null, h('label', { for: 'cpw' }, 'Current password'), h('input', { type: 'password', id: 'cpw', autocomplete: 'current-password' })), h('div', null, h('label', { for: 'npw' }, 'New password'), h('input', { type: 'password', id: 'npw', autocomplete: 'new-password' }))),
+      h('div', { class: 'row tight' }, h('button', { class: 'btn small', type: 'button', onclick: changePw }, 'Change password'), h('button', { class: 'btn ghost small', type: 'button', onclick: mailReset }, 'Email me a reset link')),
+      h('h3', null, 'If your password has leaked'),
+      h('ol', { class: 'note' }, [
+        'Change the password here right now, or press Email me a reset link. The other person\'s old login stops working within about an hour.',
+        'To lock them out at once: in Firebase, Authentication, Users, add a user with a new email. Put that new email in firestore.rules (profEmails), press Publish, then disable the old user. The old email loses all professor power immediately.',
+        'Open the Changes tab and look for entries you did not make. Fix wrong marks with manual marking.',
+        'Turn on 2-step verification for your Gmail account, because the reset link is sent there.'
+      ].map((t) => h('li', null, t))));
+  }
+  function viewSetup() {
+    const c = S.config || {}, br = branchesOf(), yr = yearsOf(), subs = c.subjects || [], hol = c.holidays || {};
+    const val = (id) => (($(id) || {}).value || '').trim();
+    const addName = (field, id, arr) => { const v = val(id); if (!v) return msg('cfg', 'Type a name first.', 'bad'); if (arr.includes(v)) return msg('cfg', 'That name already exists.', 'bad'); saveCfg({ [field]: arr.concat(v) }, 'Added ' + v + '.'); };
+    const ask = (v) => confirm('Remove "' + v + '"? Attendance already saved stays in the database, but it will no longer be shown.');
+    const rmBtn = (fn) => h('button', { class: 'btn ghost small', type: 'button', onclick: fn }, 'Remove');
+    const names = (field, arr) => h('ul', { class: 'list' }, arr.length ? arr.map((v) => h('li', null, v + ' ', rmBtn(() => { if (ask(v)) saveCfg({ [field]: arr.filter((x) => x !== v) }, 'Removed ' + v + '.'); }))) : h('li', null, 'None yet.'));
+    const adder = (field, id, ph, arr) => h('div', { class: 'row' }, h('div', null, h('input', { type: 'text', id, placeholder: ph })), h('button', { class: 'btn small', type: 'button', onclick: () => addName(field, id, arr) }, 'Add'));
+    const opts = (arr) => arr.map((x) => h('option', { value: x }, x));
+    const addSub = () => {
+      const n = val('sn'), b = val('sb'), y = val('sy');
+      if (!n || !b || !y) return msg('cfg', 'Choose a branch and year, then type the subject name.', 'bad');
+      saveCfg({ subjects: subs.concat({ id: 's' + Date.now().toString(36), name: n, branch: b, year: y }) }, 'Subject added.');
+    };
+    const addHol = () => {
+      const a = val('hd'), z = val('hd2') || a, n = val('hn');
+      if (!a || !n || z < a) return msg('cfg', 'Pick the date (and the last date for a long break) and type a name.', 'bad');
+      const m = {}; for (let t = Date.parse(a); t <= Date.parse(z) && Object.keys(m).length < 120; t += 86400000) m[new Date(t).toISOString().slice(0, 10)] = n;
+      saveCfg({ holidays: m }, 'Holiday added.');
+    };
+    const delHol = async (d) => { try { await db.doc('config/main').update(new FP('holidays', d), FV.delete()); msg('cfg', 'Holiday removed.', 'ok'); } catch (_) { msg('cfg', 'Could not remove it. Try again.', 'bad'); } };
+    return h('div', null,
+      h('div', { class: 'panel' }, h('h2', null, 'Branches and years'), msgEl('cfg'),
+        h('p', { class: 'hint' }, 'Start here. Add each branch (for example Electrical Engineering) and each year or batch (for example Final Year 2026-27). Add a new year name every session. Old years stay saved and can be opened from the year box at the top.'),
+        h('label', null, 'Branches'), names('branches', br), adder('branches', 'nb', 'New branch name', br),
+        h('label', null, 'Years'), names('years', yr), adder('years', 'ny', 'New year name', yr)),
+      h('div', { class: 'panel' }, h('h2', null, 'Subjects'),
+        h('p', { class: 'hint' }, 'A subject belongs to one branch and one year.'),
+        h('ul', { class: 'list' }, subs.length ? subs.map((x) => h('li', null, x.name + ' (' + x.branch + ', ' + x.year + ') ', rmBtn(() => { if (ask(x.name)) saveCfg({ subjects: subs.filter((y) => y.id !== x.id) }, 'Removed ' + x.name + '.'); }))) : h('li', null, 'None yet.')),
+        h('div', { class: 'row' },
+          h('div', null, h('label', { for: 'sb' }, 'Branch'), h('select', { id: 'sb', value: S.branch }, opts(br))),
+          h('div', null, h('label', { for: 'sy' }, 'Year'), h('select', { id: 'sy', value: S.year }, opts(yr))),
+          h('div', null, h('label', { for: 'sn' }, 'Subject name'), h('input', { type: 'text', id: 'sn', placeholder: 'Subject name' }))),
+        h('div', null, h('button', { class: 'btn small', type: 'button', onclick: addSub }, 'Add subject'))),
+      h('div', { class: 'panel' }, h('h2', null, 'Holidays'),
+        h('p', { class: 'hint' }, 'You cannot open an attendance window on a holiday. For a long break, also fill the last date.'),
+        h('div', { class: 'row' },
+          h('div', null, h('label', { for: 'hd' }, 'Date'), h('input', { type: 'date', id: 'hd' })),
+          h('div', null, h('label', { for: 'hd2' }, 'Last date (optional)'), h('input', { type: 'date', id: 'hd2' })),
+          h('div', null, h('label', { for: 'hn' }, 'Name'), h('input', { type: 'text', id: 'hn', placeholder: 'Diwali break' }))),
+        h('div', null, h('button', { class: 'btn small', type: 'button', onclick: addHol }, 'Add holiday')),
+        h('ul', { class: 'list' }, Object.keys(hol).sort().reverse().slice(0, 60).map((d) => h('li', null, fmtDate(d) + ': ' + hol[d] + ' ', rmBtn(() => delHol(d)))))),
+      accountPanel());
+  }
+
+  // ---------- College: important links from recabn.ac.in ----------
+  const WEB = 'https://www.recabn.ac.in/en/pages/';
+  const COLLEGE_LINKS = [
+    ['Academics', [['Academic calendar', WEB + 'academic-calendar'], ['List of holidays', WEB + 'list-of-holidays'], ['Time table', WEB + 'timetable'], ['Syllabus (AKTU)', 'https://aktu.ac.in/syllabus.html'], ['Academic rules and regulations', WEB + 'academics-rules-and-regulations']]],
+    ['Exams and results', [['Examination notices', WEB + 'examination-notices'], ['Results', WEB + 'results'], ['Examination scheme', WEB + 'examination-scheme'], ['Previous year question papers', WEB + 'question-papers']]],
+    ['Fees and scholarship', [['Online fee submission', 'https://pay.webfront.in/#/merchantinfo/rajkiya-engineering-college-ambedkar-nagar/9160'], ['College fee details', 'https://recabn.ac.in/en/pages/fee-structure-2'], ['UP scholarship portal', 'https://scholarship.up.gov.in/'], ['National Scholarship Portal', 'https://scholarships.gov.in']]],
+    ['Notices', [['Notices and announcements', 'https://recabn.ac.in/pages/notices-announcements'], ['Electrical Engineering notices', WEB + 'electrical-engineering-notices'], ['Important information and links', 'https://recabn.ac.in/pages/important-information-links']]],
+    ['Help and safety', [['Student grievance portal', WEB + 'student-grievance-portal'], ['Anti-ragging complaint', WEB + 'anti-anri'], ['Women\'s grievance cell', WEB + 'woman-harassment-cell']]],
+    ['Campus', [['Library', WEB + 'library'], ['Placement cell', WEB + 'overview'], ['Hostels', WEB + 'hostels'], ['How to reach', WEB + 'how-to-reach']]]
+  ];
+  function viewCollege() {
+    const a = (t, u) => h('a', { href: u, target: '_blank', rel: 'noopener noreferrer' }, t, h('span', { 'aria-hidden': 'true' }, '\u2197'));
+    return h('div', null,
+      h('div', { class: 'panel' }, h('h2', null, 'Rajkiya Engineering College, Ambedkar Nagar'),
+        h('p', { class: 'note' }, 'AICTE approved government engineering college, affiliated to Dr. A.P.J. Abdul Kalam Technical University, Lucknow. AKTU college code 737.'),
+        h('p', { class: 'note' }, 'Akbarpur-Tanda Road, in front of Hawai Patti, Katariya Yakoobpur, Ambedkar Nagar 224122'),
+        h('div', { class: 'linkgrid' }, a('recabn.ac.in', 'https://recabn.ac.in/'), a('Call 05271-216656', 'tel:05271216656'), a('Call 05271-216657', 'tel:05271216657'), a('Open in Maps', 'https://www.google.com/maps/search/?api=1&query=26.454744,82.560775'))),
+      COLLEGE_LINKS.map(([title, links]) => h('div', { class: 'panel' }, h('h3', null, title), h('div', { class: 'linkgrid' }, links.map(([t, u]) => a(t, u))))),
+      h('p', { class: 'hint' }, 'These links open the official college website. If a page has moved, use the menu on recabn.ac.in.'));
+  }
+
   // ---------- professor: Changes log ----------
   async function loadAudit() {
     try { const s = await db.collection('audit').orderBy('ts', 'desc').limit(100).get(); S.audit = s.docs.map((d) => d.data()); }
@@ -663,12 +891,12 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
     render();
   }
   function viewLog() {
-    const label = { mark: 'Marked present', unmark: 'Removed attendance', 'cancel-class': 'Cancelled class', 'restore-class': 'Counted class again' };
+    const label = { mark: 'Marked present', unmark: 'Removed attendance', 'cancel-class': 'Cancelled class', 'restore-class': 'Counted class again', 'reset-device': 'Reset student phone', 'reset-login': 'Issued new login code' };
     return h('div', { class: 'panel' },
       h('div', { class: 'row tight' }, h('h2', null, 'Changes log'), h('button', { class: 'btn ghost small', type: 'button', onclick: loadAudit }, 'Refresh')),
       h('p', { class: 'hint' }, 'Every manual change is kept here with who made it and why. Latest 100.'),
       S.audit == null ? h('p', { class: 'note' }, 'Loading') : S.audit.length === 0 ? h('p', { class: 'note' }, 'No manual changes yet.') :
-        h('ul', { class: 'list' }, S.audit.map((a) => h('li', null, h('b', null, label[a.action] || a.action), (a.roll ? ' ' + a.roll : ''), ' for ' + clsName(a.classId) + ' on ' + fmtDate(a.dateKey), a.reason ? '. Reason: ' + a.reason : '', h('br'), h('span', { class: 'hint' }, fmtDate(istDate(a.ts)) + ' ' + fmtTime(a.ts) + ' by ' + a.by)))));
+        h('ul', { class: 'list' }, S.audit.map((a) => h('li', null, h('b', null, label[a.action] || a.action), (a.roll ? ' ' + a.roll : ''), (a.classId ? ' for ' + clsName(a.classId) : '') + ' on ' + fmtDate(a.dateKey), a.reason ? '. Reason: ' + a.reason : '', h('br'), h('span', { class: 'hint' }, fmtDate(istDate(a.ts)) + ' ' + fmtTime(a.ts) + ' by ' + a.by)))));
   }
 
   // ---------- live clocks ----------
@@ -682,6 +910,7 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
   const stopAll = () => { unsubs.forEach((u) => { try { u(); } catch (_) {} }); unsubs = []; };
   const onErr = () => banner('Some data could not be loaded. Reload the page.');
   function watchShared() {
+    unsubs.push(db.doc('config/main').onSnapshot((s) => { S.config = s.exists ? s.data() : {}; render(); }, onErr));
     unsubs.push(db.doc('live/current').onSnapshot((s) => { S.live = s.exists ? s.data() : null; render(); }, onErr));
     unsubs.push(db.collection('calendar').onSnapshot((s) => { const c = {}; s.docs.forEach((d) => { c[d.id] = d.data(); }); S.calendar = c; render(); }, onErr));
   }
@@ -691,8 +920,9 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
   }
   function startProf() {
     stopAll(); watchShared();
+    unsubs.push(db.doc('secret/current').onSnapshot((x) => { S.secret = x.exists ? x.data() : null; render(); }, onErr));
     unsubs.push(db.collection('records').onSnapshot((s) => { const m = new Map(); s.docs.forEach((d) => m.set(d.id, d.data().marks || {})); S.records = m; render(); }, onErr));
-    unsubs.push(db.collection('students').onSnapshot((s) => { const m = new Map(); s.docs.forEach((d) => m.set(d.id, d.data())); S.students = m; render(); }, onErr));
+    unsubs.push(db.collection('students').onSnapshot((s) => { const m = new Map(); s.docs.forEach((d) => m.set(d.id, Object.assign({ uid: d.id }, d.data()))); S.students = m; render(); }, onErr));
   }
 
   // ---------- boot ----------
@@ -701,16 +931,23 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
   if (!configured) { banner('Firebase is not set up yet. Follow SETUP.md and paste your config into index.html.'); return; }
   firebase.initializeApp(FIREBASE_CONFIG);
   auth = firebase.auth(); db = firebase.firestore(); FV = firebase.firestore.FieldValue; FP = firebase.firestore.FieldPath;
+  let lastAct = Date.now();
+  ['pointerdown', 'keydown', 'touchstart'].forEach((ev) => addEventListener(ev, () => { lastAct = Date.now(); }, { passive: true }));
+  setInterval(() => { if (auth.currentUser && Date.now() - lastAct > (S.role === 'prof' ? 30 : 45) * 60000) auth.signOut(); }, 30000);
   auth.onAuthStateChanged(async (u) => {
     stopAll(); S.user = u; S.ready = true; S.live = null; S.myMarks = {}; S.records = new Map(); S.students = new Map(); S.pending = null; S.msgs = {}; S.audit = null;
     if (!u) { S.role = null; render(); return; }
     const em = u.email || '';
     if (em.endsWith('@' + DOMAIN)) {
-      S.role = 'student'; S.roll = em.split('@')[0];
+      S.role = 'student'; S.roll = em.split('@')[0].split('.')[0];
       try {
         const d = await db.doc('students/' + u.uid).get();
         if (!d.exists || d.data().roll !== S.roll) { banner('Your account is not set up for this class. Ask your professor.'); auth.signOut(); return; }
-        S.activated = !!d.data().activated; banner('');
+        if (d.data().disabled) { banner('Your login was replaced by your professor. Log in with your new activation code.'); auth.signOut(); return; }
+        S.activated = !!d.data().activated; S.sbatch = d.data().batch || ''; banner('');
+        const dd = d.data().device || '';
+        if (S.activated && !dd && devId()) { try { await db.doc('students/' + u.uid).update({ device: devId() }); S.devOk = true; } catch (_) { S.devOk = false; } }
+        else S.devOk = !dd || dd === devId();
         if (S.activated) startStudent();
       } catch (_) { banner('Could not load your account. Reload the page.'); }
     } else { S.role = 'prof'; S.tab = 'day'; banner(''); startProf(); }
@@ -718,6 +955,11 @@ table.t { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-
   });
   render();
 })();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
 </script>
 </body>
 </html>
