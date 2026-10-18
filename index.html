@@ -289,7 +289,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
   const ADMIN_EMAILS = ['data.ee4rthyear@gmail.com'], FACULTY_EMAILS = ['data.ee4rthyear@gmail.com'];
   // Director = reads every branch and creates HOD accounts. Must match directorEmails() in firestore.rules. HODs are NOT listed here: the Director creates them inside the app (Access tab).
   const DIRECTOR_EMAILS = ['data.ee4rthyear@gmail.com'];
-  const DEFAULT_BRANCHES = ['First Year (Common)', 'Electrical Engineering', 'Civil Engineering', 'Information Technology'];
+  const DEFAULT_BRANCHES = ['APSH (First Year)', 'Electrical Engineering', 'Civil Engineering', 'Information Technology'];
   let CLASSES = [], ROLLS = [], NAMES = {};
   const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const MONTH_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -832,7 +832,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
         return h('td', { class: cx ? 'a' : on ? 'p' : 'a', title: r + ' ' + fmtDate(d) }, cx ? '/' : on ? 'P' : '-');
       });
       const st = statFor(marks, cid);
-      return h('tr', { class: isShort(st.att, st.held) ? 'short' : '' }, h('td', { class: 'sticky mono' }, r.slice(-5)), cells, h('td', { class: 'c' }, mp + '/' + mh), h('td', { class: 'c' }, fmtPct(pctOf(st.att, st.held))));
+      return h('tr', { class: isShort(st.att, st.held) ? 'short' : '' }, h('td', { class: 'sticky mono' }, r.slice(-5), NAMES[r] ? h('div', { class: 'hint' }, NAMES[r]) : null), cells, h('td', { class: 'c' }, mp + '/' + mh), h('td', { class: 'c' }, fmtPct(pctOf(st.att, st.held))));
     });
     return h('div', { class: 'panel' },
       h('h2', null, 'Attendance register'),
@@ -877,7 +877,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       h('div', { class: 'tablewrap' }, h('table', { class: 't' },
         h('thead', null, h('tr', null, h('th', { class: 'mono' }, 'Roll number'), h('th', { class: 'c' }, 'Attended'), h('th', { class: 'c' }, 'Held'), h('th', { class: 'c' }, '%'), h('th', null, 'Status'), h('th', { class: 'c' }, 'Needs'))),
         h('tbody', null, shown.length ? shown.map((x) => h('tr', { class: x.short ? 'short' : '' },
-          h('td', { class: 'mono' }, x.roll), h('td', { class: 'c' }, x.att), h('td', { class: 'c' }, x.held), h('td', { class: 'c' }, fmtPct(x.pct)),
+          h('td', { class: 'mono' }, x.roll, NAMES[x.roll] ? h('div', { class: 'hint' }, NAMES[x.roll]) : null), h('td', { class: 'c' }, x.att), h('td', { class: 'c' }, x.held), h('td', { class: 'c' }, fmtPct(x.pct)),
           h('td', null, h('span', { class: 'pill ' + (x.held === 0 ? 'muted' : x.short ? 'bad' : 'ok') }, x.held === 0 ? 'No classes' : x.short ? 'Below 75%' : 'Eligible')),
           h('td', { class: 'c' }, x.short ? needMore(x.att, x.held) + ' in a row' : '-'))) : h('tr', null, h('td', { colspan: '6' }, 'Nobody is below 75%.'))))),
       h('p', { class: 'hint' }, '"Needs" is how many classes in a row the student must attend to reach 75%. Cancelled classes are not counted. Use this list to decide who is not allowed in the exam.'));
@@ -916,7 +916,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       h('p', { class: 'hint' }, 'Each new student gets a one-time activation code. They log in with their roll number and that code, then choose their own password. The codes exist only on this screen: download them right after creating, and hand each student only their own.'),
       h('div', { class: 'tablewrap' }, h('table', { class: 't' },
         h('thead', null, h('tr', null, h('th', { class: 'mono' }, 'Roll number'), h('th', null, 'Own password'), h('th', null, 'Phone'), h('th', null, 'Help'))),
-        h('tbody', null, ROLLS.map((r) => { const x = have.get(r) || {}; return h('tr', null, h('td', { class: 'mono' }, r), h('td', null, x.activated ? 'Set' : 'Not yet'), h('td', null, x.device ? 'Registered' : '-'), h('td', null, h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy, onclick: () => resetLogin(x) }, 'New code'), ' ', h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy || !x.device, onclick: () => resetDevice(x) }, 'Reset phone'))); })))));
+        h('tbody', null, ROLLS.map((r) => { const x = have.get(r) || {}; return h('tr', null, h('td', { class: 'mono' }, r, NAMES[r] ? h('div', { class: 'hint' }, NAMES[r]) : null), h('td', null, x.activated ? 'Set' : 'Not yet'), h('td', null, x.device ? 'Registered' : '-'), h('td', null, h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy, onclick: () => resetLogin(x) }, 'New code'), ' ', h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy || !x.device, onclick: () => resetDevice(x) }, 'Reset phone'))); })))));
   }
   async function downloadBackup() {
     try {
@@ -1471,7 +1471,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       }
       if (!S.isAdmin && !S.isFaculty && !S.isDirector && !S.isHod) { banner('This account is not authorised for AgixOn.'); S.keepBanner = true; auth.signOut(); return; }
       S.hodOnly = S.isHod && !S.isAdmin && !S.isFaculty && !S.isDirector;
-      S.roleLabel = S.isDirector ? 'Director | all branches' : S.isHod ? 'HOD | ' + S.hodBranch : '';
+      S.roleLabel = S.isDirector ? 'Director | all branches' : S.isHod ? 'HOD | ' + S.hodBranch : S.isAdmin ? 'Academic Admin' : 'Faculty';
       S.tab = S.isFaculty ? 'day' : (S.isDirector || S.isHod) ? 'ov' : 'stu'; S.ovYear = 'all'; banner('');
       if (!S.mustChange) { startProf(); if (S.isDirector && S.tab === 'ov') loadOverview(); }
     }
