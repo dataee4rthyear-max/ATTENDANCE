@@ -6,6 +6,8 @@
 <title>AgixOn Verified Attendance Platform</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<script>try{if(window.top!==window.self){window.top.location=window.self.location;}}catch(e){document.documentElement.style.display='none';}</script>
+<script>try{var t=localStorage.getItem('agx_theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 <style>
 :root {
   color-scheme: light;
@@ -196,9 +198,43 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
 .login h2 { font-size: 22px; }
 .foot { opacity: .7; }
 @media (max-width: 480px) { .wrap { padding-top: 14px; } header.hero { padding: 14px 16px; gap: 12px; } .logo { width: 46px; height: 46px; } .panel { padding: 18px; } }
+
+.install { margin-top: 14px; padding: 12px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; border: 1px solid rgba(129,140,248,.35); border-radius: 14px; background: linear-gradient(135deg, rgba(99,102,241,.14), rgba(34,211,238,.08)); }
+.install p { margin: 0; flex: 1 1 220px; font-size: 14px; line-height: 1.4; }
+.install .btn { padding: 9px 16px; font-size: 14px; }
+.install .x { background: transparent; border: 0; color: var(--muted); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+
+/* ---- light theme + names + faculty ---- */
+:root[data-theme="light"], :root[data-theme="light"] * { color-scheme: light; }
+:root[data-theme="light"] { --bg:#f3f4fb; --surface:#fff; --surface2:#f3f4fb; --ink:#0f1530; --muted:#5b6482; --line:#e3e6f1; --accent:#4338ca; --accent-ink:#fff; --ok:#0f8a5f; --ok-soft:#dcf5ea; --warn:#92600a; --warn-soft:#fdf1d3; --bad:#c2312a; --bad-soft:#fde4e2; --shadow:0 1px 2px rgba(15,21,48,.05),0 8px 24px rgba(15,21,48,.07); --grad:linear-gradient(135deg,#6366f1,#22d3ee); }
+:root[data-theme="light"] body { background: radial-gradient(1100px 480px at 50% -220px, rgba(109,93,252,.16), transparent), var(--bg); }
+.themebtn { margin-left: auto; flex: 0 0 auto; }
+.grid.named { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.grid.named .cell { display: grid; gap: 2px; text-align: left; padding: 8px 10px; }
+.cell .rl { font-size: 11px; opacity: .8; }
+.cell small { font: 600 12px var(--f-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cls small.prof { display: block; margin-top: 2px; font-weight: 500; font-size: 12px; color: var(--muted); }
+
+/* ===== Director / HOD layer ===== */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{padding:16px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(160deg,var(--surface2,var(--surface)),var(--surface));display:grid;gap:6px;min-width:0}
+.kpi b{font:800 28px/1 var(--f-body);font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.kpi.bad b{color:var(--bad)} .kpi.ok b{color:var(--ok)}
+.brgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.brcard{text-align:left;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface2,var(--surface));color:var(--ink);cursor:pointer;display:grid;gap:8px;font:inherit;min-width:0;transition:transform .15s,border-color .15s,box-shadow .15s}
+.brcard:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 10px 26px rgba(67,56,202,.18)}
+.brcard.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.rolebadge{display:inline-flex;align-items:center;margin:4px 8px;padding:4px 12px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font:700 12px var(--f-body);letter-spacing:.03em;white-space:nowrap}
+.livestrip{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--ok-soft);color:var(--ok);font-weight:600}
+.livestrip.idle{background:var(--surface2,var(--surface));color:var(--muted);border:1px solid var(--line)}
+.cred{font:500 15px var(--f-mono);padding:14px;border:1px dashed var(--accent);border-radius:14px;overflow-wrap:anywhere;user-select:all;line-height:1.7}
+.panel{box-shadow:0 1px 0 rgba(255,255,255,.03),0 10px 30px rgba(8,10,30,.10)}
+.btn{transition:transform .12s,filter .12s} .btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
 </style>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#090b10">
+<meta name="referrer" content="no-referrer">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -211,8 +247,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       <p class="kicker">Rajkiya Engineering College (REC), Ambedkar Nagar</p>
       <h1>AgixOn <span>Verified Attendance Platform</span></h1>
     </div>
+    <button id="themeBtn" class="btn ghost small themebtn" type="button" aria-label="Switch dark or light mode"></button>
   </header>
   <div id="banner" class="banner" hidden></div>
+  <div id="install" class="install" hidden></div>
   <div id="app"></div>
   <p class="foot">AgixOn Verified Attendance Platform &middot; <a href="https://recabn.ac.in/" target="_blank" rel="noopener noreferrer">recabn.ac.in</a></p>
 </div>
@@ -233,9 +271,14 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
 
 <script>
 (() => {
-  let TOTAL = 0; const RADIUS = 50, CRIT = 75;
+  let TOTAL = 0; const RADIUS = 35, ACC_MAX = 40, CRIT = 75;   // metres: max distance from the teacher / max GPS error allowed
   const DOMAIN = 'students.example.com';
-  let CLASSES = [], ROLLS = [];
+  // Must match adminEmails() and profEmails() in firestore.rules. Admin = accounts, passwords, branches, years, subjects. Faculty = attendance.
+  const ADMIN_EMAILS = ['data.ee4rthyear@gmail.com'], FACULTY_EMAILS = ['data.ee4rthyear@gmail.com'];
+  // Director = reads every branch and creates HOD accounts. Must match directorEmails() in firestore.rules. HODs are NOT listed here: the Director creates them inside the app (Access tab).
+  const DIRECTOR_EMAILS = ['data.ee4rthyear@gmail.com'];
+  const DEFAULT_BRANCHES = ['First Year (Common)', 'Electrical Engineering', 'Civil Engineering', 'Information Technology'];
+  let CLASSES = [], ROLLS = [], NAMES = {};
   const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const MONTH_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -296,10 +339,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
 
   // ---------- state ----------
   let auth = null, db = null, FV = null, FP = null;
-  const today = istDate();
+  let today = istDate();
   const S = {
     ready: false, user: null, role: null, roll: null, activated: false,
-    live: null, calendar: {}, myMarks: {}, records: new Map(), students: new Map(), audit: null,
+    lives: {}, secrets: {}, ccodes: {}, calendar: {}, myMarks: {}, records: new Map(), students: new Map(), audit: null,
     tab: 'day', cls: 'epd', date: today, regCls: 'epd', regMonth: today.slice(0, 7),
     chkScope: 'all', chkOnly: true, month: today.slice(0, 7), selDate: today,
     pending: null, msgs: {}, codes: null, busy: false
@@ -311,6 +354,26 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
   // ---------- data helpers ----------
   const datesOf = (cid) => (S.calendar[cid] && S.calendar[cid].dates) || {};
   const heldDates = (cid) => Object.keys(datesOf(cid)).filter((d) => !datesOf(cid)[d].cancelled).sort();
+  // Every attendance window has its own document per class, so many teachers can run theirs at once.
+  const liveFor = (cid) => S.lives[cid] || null;
+  const openLives = () => Object.values(S.lives).filter((l) => isOpen(l));
+  // Retention: records, calendar and the change log carry expireAt (5 years). Turn on Firestore TTL for that field.
+  const LOCK_MS = 12 * 3600000, RETAIN_MS = Math.round(5 * 365.25 * 86400000);
+  const expireTs = () => firebase.firestore.Timestamp.fromMillis(Date.now() + RETAIN_MS);
+  const addDays = (dk, n) => istDate(new Date(dk + 'T00:00:00+05:30').getTime() + n * 86400000);
+  const dayEnd = (dk) => new Date(dk + 'T00:00:00+05:30').getTime() + 86400000;
+  // A class day locks 12 hours after the class window ended. After that only the Admin can correct it.
+  const isLocked = (cid, dk) => { const i = datesOf(cid)[dk]; return Date.now() > (i && i.endedAt ? i.endedAt : dayEnd(dk)) + LOCK_MS; };
+  const cancelKeys = (cal) => { const k = new Set(); Object.keys(cal).forEach((cid) => { const ds = (cal[cid] && cal[cid].dates) || {}; Object.keys(ds).forEach((d) => { if (ds[d].cancelled) k.add(cid + '|' + d); }); }); return k; };
+  function notifyCancels(oldCal, newCal) {
+    if (!S.calReady) { S.calReady = true; return; }
+    const before = cancelKeys(oldCal), mine = ((S.config && S.config.subjects) || []).filter((x) => x.branch + '|' + x.year === S.sbatch);
+    cancelKeys(newCal).forEach((k) => {
+      if (before.has(k)) return; const [cid, d] = k.split('|'), sub = mine.find((x) => x.id === cid); if (!sub) return;
+      const text = sub.name + ' on ' + fmtDate(d) + ' is cancelled.'; banner('Class cancelled: ' + text);
+      try { if (window.Notification && Notification.permission === 'granted') new Notification('Class cancelled', { body: text }); } catch (_) {}
+    });
+  }
   function statFor(marks, cid) {
     const dates = heldDates(cid); let a = 0;
     if (marks) for (const d of dates) if (marks[markKey(cid, d)]) a++;
@@ -336,15 +399,28 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
   };
 
   // ---------- branch / year / holidays ----------
-  const branchesOf = () => (S.config && S.config.branches) || [];
+  const branchesOf = () => { const b = (S.config && S.config.branches) || []; return S.hodOnly ? b.filter((x) => x === S.hodBranch) : b; };
   const yearsOf = () => (S.config && S.config.years) || [];
+  // Sessions: a session such as 2026-27 is stored in config.sessions and also read from year names ("Final Year 2026-27").
+  const SESS_RE = /\d{4}\s*-\s*\d{2,4}/;
+  const sessOfYear = (y) => ((String(y).match(SESS_RE) || ['General'])[0]).replace(/\s/g, '');
+  const sessionsOf = () => [...new Set(((S.config && S.config.sessions) || []).concat(yearsOf().map(sessOfYear)))].sort().reverse();
+  const activeSess = () => { const l = sessionsOf(), a = S.config && S.config.activeSession; return l.includes(a) ? a : (l.find((x) => x !== 'General') || l[0]); };
+  const isPast = () => !!S.session && S.session !== activeSess();
+  const yearsInSession = () => yearsOf().filter((y) => sessOfYear(y) === S.session);
   const holiday = (dk) => ((S.config || {}).holidays || {})[dk];
-  const curBatch = () => { const b = branchesOf(), y = yearsOf(); if (!b.includes(S.branch)) S.branch = b[0]; if (!y.includes(S.year)) S.year = y[0]; return (S.branch || '') + '|' + (S.year || ''); };
+  const curBatch = () => {
+    const sl = sessionsOf();
+    if (!sl.includes(S.session)) { let v = null; try { v = localStorage.getItem('agx_sess'); } catch (_) {} S.session = sl.includes(v) ? v : activeSess(); }
+    const b = branchesOf(), y = yearsInSession();
+    if (!b.includes(S.branch)) S.branch = b[0]; if (!y.includes(S.year)) S.year = y[0];
+    return (S.branch || '') + '|' + (S.year || '');
+  };
   function recompute() {
     const subs = (S.config && S.config.subjects) || [], b = S.role === 'student' ? (S.sbatch || '') : curBatch();
-    CLASSES = subs.filter((x) => x.branch + '|' + x.year === b).map((x) => ({ id: x.id, name: x.name }));
+    CLASSES = subs.filter((x) => x.branch + '|' + x.year === b).map((x) => ({ id: x.id, name: x.name, prof: x.prof || '' }));
     ROLLS = [];
-    if (S.role === 'prof') S.students.forEach((v) => { if (!v.disabled && (v.batch || '') === b) ROLLS.push(v.roll); });
+    if (S.role === 'prof') S.students.forEach((v) => { if (!v.disabled && (v.batch || '') === b) { ROLLS.push(v.roll); NAMES[v.roll] = v.name || ''; } });
     ROLLS.sort(); TOTAL = ROLLS.length;
     if (!CLASSES.some((c) => c.id === S.cls)) S.cls = (CLASSES[0] || {}).id;
     if (!CLASSES.some((c) => c.id === S.regCls)) S.regCls = (CLASSES[0] || {}).id;
@@ -352,7 +428,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
   function batchBar() {
     const mk = (id, lab, arr, cur, on) => h('div', null, h('label', { for: id }, lab), h('select', { id, value: cur, onchange: (e) => { on(e.target.value); S.pending = null; render(); } }, arr.length ? arr.map((x) => h('option', { value: x }, x)) : h('option', { value: '' }, 'Add in Setup')));
     curBatch();
-    return h('div', { class: 'batchbar' }, mk('bb', 'Branch', branchesOf(), S.branch, (v) => { S.branch = v; }), mk('by', 'Year', yearsOf(), S.year, (v) => { S.year = v; }));
+    const sl = sessionsOf();
+    const sess = h('div', null, h('label', { for: 'bs' }, 'Session'), h('select', { id: 'bs', value: S.session, onchange: (e) => { S.session = e.target.value; try { localStorage.setItem('agx_sess', S.session); } catch (_) {} S.year = null; S.pending = null; render(); } },
+      sl.length ? sl.map((x) => h('option', { value: x }, x + (x === activeSess() ? ' (current)' : ' (history)'))) : h('option', { value: '' }, 'Create in Setup')));
+    return h('div', { class: 'batchbar' }, sess, mk('bb', 'Branch', branchesOf(), S.branch, (v) => { S.branch = v; }), mk('by', 'Year', yearsInSession(), S.year, (v) => { S.year = v; }));
   }
 
   // ---------- rendering ----------
@@ -367,15 +446,24 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       app.append(navBar([['dash', 'My attendance'], ['college', 'College']], S.tab === 'college' ? 'college' : 'dash'), S.tab === 'college' ? viewCollege() : viewStudent());
       return;
     }
-    app.append(navBar([['day', 'Day'], ['reg', 'Register'], ['chk', '75% check'], ['stu', 'Students'], ['log', 'Changes'], ['setup', 'Setup'], ['college', 'College']], S.tab), batchBar());
-    app.append(!CLASSES.length && !['setup', 'stu', 'college'].includes(S.tab)
+    if (S.mustChange) { app.append(viewHodSetPassword()); return; }
+    const tabs = [];
+    if (S.isFaculty) tabs.push(['day', 'Day'], ['reg', 'Register'], ['chk', '75% check']);
+    if (S.isDirector || S.isHod) tabs.push(['ov', 'Overview']);
+    if (S.isAdmin) tabs.push(['stu', 'Accounts'], ['setup', 'Setup']);
+    if (S.isDirector) tabs.push(['staff', 'Access']);
+    tabs.push(['log', 'Changes'], ['college', 'College']);
+    if (!tabs.some((t) => t[0] === S.tab)) S.tab = tabs[0][0];
+    app.append(navBar(tabs, S.tab), batchBar());
+    if (isPast()) app.append(h('p', { class: 'result warn' }, 'Session ' + S.session + ' is history. You can view and export it, but attendance cannot be changed or opened. Choose the current session to take attendance.'));
+    app.append(!CLASSES.length && !['setup', 'stu', 'college', 'log', 'ov', 'staff'].includes(S.tab)
       ? h('div', { class: 'panel' }, h('p', { class: 'note' }, 'There is no subject for this branch and year yet. Open Setup and add the branch, year and subjects first.'))
-      : ({ day: viewDay, reg: viewRegister, chk: viewCheck, stu: viewStudents, log: viewLog, setup: viewSetup, college: viewCollege }[S.tab] || viewDay)());
+      : ({ day: viewDay, reg: viewRegister, chk: viewCheck, stu: viewStudents, log: viewLog, setup: viewSetup, college: viewCollege, ov: viewOverview, staff: viewStaff }[S.tab] || viewDay)());
   }
   function navBar(items, cur) {
     return h('nav', { class: 'nav' },
-      items.map(([id, label]) => h('button', { type: 'button', 'aria-selected': String(id === cur), onclick: () => { S.tab = id; S.pending = null; if (id === 'log') loadAudit(); render(); } }, label)),
-      h('span', { class: 'who' }),
+      items.map(([id, label]) => h('button', { type: 'button', 'aria-selected': String(id === cur), onclick: () => { S.tab = id; S.pending = null; if (id === 'log') loadAudit(); if (id === 'staff') loadStaff(); if (id === 'ov' && S.hodOnly) loadHodRecords(); render(); } }, label)),
+      h('span', { class: 'who' }, S.role === 'prof' && S.roleLabel ? h('span', { class: 'rolebadge' }, S.roleLabel) : null),
       h('button', { type: 'button', onclick: () => auth.signOut() }, 'Log out'));
   }
 
@@ -398,14 +486,14 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
     }
     async function forgot() {
       const v = id.value.trim();
-      if (!v.includes('@')) return say('Professors: type your email in the first box, then press this again. Students: ask your professor to help.', 'warn');
+      if (!v.includes('@')) return say('Staff: type your email in the first box, then press this again. Students: ask your professor to help.', 'warn');
       try { await auth.sendPasswordResetEmail(v); say('If that email has an account, a reset link has been sent. Check Inbox and Spam.', 'ok'); }
       catch (_) { say('Could not send the link. Check the email and try again.', 'bad'); }
     }
     pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
     return h('div', { class: 'panel login' },
       h('h2', null, 'Log in'),
-      h('div', null, h('label', { for: 'lid' }, 'College ID (roll number)'), id, h('p', { class: 'hint' }, 'Professors use their email here.')),
+      h('div', null, h('label', { for: 'lid' }, 'College ID (roll number)'), id, h('p', { class: 'hint' }, 'Staff (Faculty, HOD, Director, Admin) use their email here.')),
       h('div', null, h('label', { for: 'lpw' }, 'Password'), pw),
       h('p', { class: 'hint' }, 'First time? Your password is the activation code your professor gave you. You will choose your own password right after.'),
       h('div', { class: 'row tight' }, h('button', { class: 'btn', type: 'button', onclick: go }, 'Log in'), h('button', { class: 'btn ghost small', type: 'button', onclick: forgot }, 'Forgot password?')),
@@ -457,21 +545,28 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
   function viewStudent() {
     const wrap = h('div');
     if (S.devOk === false) wrap.append(h('div', { class: 'panel' }, h('p', { class: 'result bad' }, 'This phone is not registered for your account, so you cannot mark attendance here. Ask your professor to reset your phone.')));
-    // mark card
-    const l = S.live;
-    if (isOpen(l) && (l.batch || '') === (S.sbatch || '')) {
-      const done = S.myMarks[markKey(l.classId, l.dateKey)];
+    // mark cards: one per open window of my batch
+    const opens = openLives().filter((l) => (l.batch || '') === (S.sbatch || ''));
+    opens.forEach((l) => {
+      const cid = l.classId, done = S.myMarks[markKey(cid, l.dateKey)];
       wrap.append(h('div', { class: 'panel' },
         h('div', { class: 'status' },
           h('span', { class: 'lamp ' + (l.geo ? 'open' : 'nogeo') }),
           h('div', null, h('p', { class: 'status-title' }, l.className + ' attendance is open'),
-            h('p', { class: 'status-meta' }, 'Closes at ' + fmtTime(l.closesAt) + (l.geo ? '. You must be within 50 m of the classroom.' : '. Location is not checked for this window.'))),
+            h('p', { class: 'status-meta' }, 'Closes at ' + fmtTime(l.closesAt) + (l.geo ? '. You must be within ' + (l.radius || RADIUS) + ' m of the classroom.' : '. Location is not checked for this window.'))),
           h('div', { class: 'clock js-clock', 'data-close': l.closesAt }, fmtClock(l.closesAt - Date.now()))),
         done ? h('p', { class: 'result ok' }, 'You are marked present. ' + markText(done))
-          : h('div', { class: 'row' }, h('div', null, h('label', { for: 'ccode' }, 'Class code (on the board)'), h('input', { type: 'text', id: 'ccode', inputmode: 'numeric', maxlength: '4', autocomplete: 'off', value: S.ccode || '', oninput: (e) => { S.ccode = e.target.value.replace(/\D/g, ''); } })), h('button', { class: 'btn', type: 'button', disabled: S.busy || S.devOk === false, onclick: studentMark }, 'Mark me present')),
-        msgEl('mark')));
-    } else if (S.msgs.mark) wrap.append(h('div', { class: 'panel' }, msgEl('mark')));
-
+          : h('div', { class: 'row' }, h('div', null, h('label', { for: 'cc_' + cid }, 'Class code (on the board)'), h('input', { type: 'text', id: 'cc_' + cid, inputmode: 'numeric', maxlength: '4', autocomplete: 'off', value: S.ccodes[cid] || '', oninput: (e) => { S.ccodes[cid] = e.target.value.replace(/\D/g, ''); } })), h('button', { class: 'btn', type: 'button', disabled: S.busy || S.devOk === false, onclick: () => studentMark(cid) }, 'Mark me present')),
+        S.markCls === cid ? msgEl('mark') : null));
+    });
+    if (S.msgs.mark && !opens.some((l) => l.classId === S.markCls)) wrap.append(h('div', { class: 'panel' }, msgEl('mark')));
+    // cancelled classes (today, upcoming and the last 7 days)
+    const lim = addDays(today, -7), cx = [];
+    for (const c of CLASSES) { const ds = datesOf(c.id); Object.keys(ds).forEach((d) => { if (ds[d].cancelled && d >= lim) cx.push({ c, d, i: ds[d] }); }); }
+    cx.sort((x, y) => (x.d < y.d ? 1 : -1));
+    if (cx.length) wrap.append(h('div', { class: 'panel' }, h('h3', null, 'Cancelled classes'),
+      h('ul', { class: 'list' }, cx.map((x) => h('li', null, h('span', { class: 'pill bad' }, 'Cancelled'), ' ', h('b', null, x.c.name), ' on ' + fmtDate(x.d) + (x.d === today ? ' (today)' : x.d > today ? ' (upcoming)' : '') + (x.c.prof ? ', ' + x.c.prof : '') + (x.i.cancelNote ? '. Reason: ' + x.i.cancelNote : ''), x.i.cancelledAt ? h('span', { class: 'hint' }, ' Announced ' + fmtDate(istDate(x.i.cancelledAt)) + ' ' + fmtTime(x.i.cancelledAt)) : null))),
+      window.Notification && Notification.permission === 'default' ? h('div', null, h('button', { class: 'btn ghost small', type: 'button', onclick: () => { try { Notification.requestPermission().then(() => render()); } catch (_) {} } }, 'Alert me when a class is cancelled')) : null));
     // summaries
     const all = statAll(S.myMarks);
     const heldDays = new Set(), presDays = new Set();
@@ -481,7 +576,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       h('p', { class: 'note' }, 'Days you came to college: ' + presDays.size + ' of ' + heldDays.size + ' class days. Marks are saved permanently and only your professor can change them.'),
       h('div', { class: 'cards' },
         summaryCard('All subjects', all.att, all.held),
-        CLASSES.map((c) => { const s = statFor(S.myMarks, c.id); return summaryCard(c.name, s.att, s.held); }))));
+        CLASSES.map((c) => { const s = statFor(S.myMarks, c.id); return summaryCard(c.name + (c.prof ? ' \u00b7 ' + c.prof : ''), s.att, s.held); }))));
 
     // calendar
     wrap.append(viewCalendar());
@@ -518,12 +613,12 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       h('h3', null, fmtDate(dk)),
       rows.length ? h('ul', { class: 'list' }, rows) : h('p', { class: 'note' }, holiday(dk) ? 'Holiday: ' + holiday(dk) : 'No class was held on this day.'));
   }
-  async function studentMark() {
-    const win = S.live;
+  async function studentMark(cid) {
+    const win = liveFor(cid); S.markCls = cid; const ccode = (S.ccodes || {})[cid] || '';
     if (!isOpen(win)) return msg('mark', 'The attendance window is closed.', 'bad');
     const key = markKey(win.classId, win.dateKey);
     if (S.myMarks[key]) return msg('mark', 'You are already marked for this class.', 'ok');
-    if (!/^\d{4}$/.test(S.ccode || '')) return msg('mark', 'Enter the 4-digit class code shown on the board.', 'bad');
+    if (!/^\d{4}$/.test(ccode)) return msg('mark', 'Enter the 4-digit class code shown on the board.', 'bad');
     S.busy = true; msg('mark', win.geo ? 'Reading your location' : 'Saving', 'warn');
     try {
       let dist = null, acc = null;
@@ -531,15 +626,15 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
         let pos;
         try { pos = await getPos(); } catch (e) { S.busy = false; return msg('mark', geoMsg(e) + ' If this keeps happening, ask your professor to mark you.', 'bad'); }
         dist = haversine(pos.coords.latitude, pos.coords.longitude, win.lat, win.lng); acc = pos.coords.accuracy;
-        if (dist > RADIUS) { S.busy = false; return msg('mark', 'You are about ' + Math.round(dist) + ' m from the classroom. Move within ' + RADIUS + ' m and try again.', 'bad'); }
-        if (acc > RADIUS) { S.busy = false; return msg('mark', 'Your GPS is only accurate to about ' + Math.round(acc) + ' m, too coarse to confirm you are in the room. Move near a window and try again. If it still fails, ask your professor to mark you.', 'bad'); }
+        if (dist > (win.radius || RADIUS)) { S.busy = false; return msg('mark', 'You are about ' + Math.round(dist) + ' m from the classroom. Move within ' + (win.radius || RADIUS) + ' m and try again.', 'bad'); }
+        if (acc > (win.accMax || ACC_MAX)) { S.busy = false; return msg('mark', 'Your device location is only accurate to about ' + Math.round(acc) + ' m, too coarse to confirm you are in the room.' + (/Mobi|Android|iPhone/i.test(navigator.userAgent) ? ' Turn on GPS / High accuracy, move near a window and try again.' : ' Laptops have no GPS (they guess from Wi-Fi), so use your phone to mark attendance.') + ' If it still fails, ask your professor to mark you.', 'bad'); }
       }
-      if (!isOpen(S.live) || S.live.sessionId !== win.sessionId) { S.busy = false; return msg('mark', 'The attendance window closed before it could be saved.', 'bad'); }
+      const cur = liveFor(cid); if (!isOpen(cur) || cur.sessionId !== win.sessionId) { S.busy = false; return msg('mark', 'The attendance window closed before it could be saved.', 'bad'); }
       await db.doc('records/' + S.roll).set({
-        roll: S.roll,
-        marks: { [key]: { ts: Date.now(), dist: dist == null ? null : Math.round(dist), acc: acc == null ? null : Math.round(acc), method: win.geo ? 'gps' : 'no-location', sid: win.sessionId, dev: devId(), code: S.ccode } }
+        roll: S.roll, cid, expireAt: expireTs(),
+        marks: { [key]: { ts: Date.now(), dist: dist == null ? null : Math.round(dist), acc: acc == null ? null : Math.round(acc), method: win.geo ? 'gps' : 'no-location', sid: win.sessionId, dev: devId(), code: ccode } }
       }, { merge: true });
-      S.busy = false; S.ccode = ''; msg('mark', '', '');
+      S.busy = false; S.ccodes[cid] = ''; msg('mark', '', '');
     } catch (e) {
       S.busy = false;
       msg('mark', e && e.code === 'permission-denied' ? 'Could not save. The class code may be wrong, or the window has just closed. Check the code and try again, or ask your professor to mark you.' : 'Could not save your attendance. Check your connection and try again.', 'bad');
@@ -550,7 +645,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
   function classRadios() {
     return h('fieldset', null, h('legend', { class: 'lbl' }, 'Class'),
       h('div', { class: 'classes' }, CLASSES.map((c) => h('label', { class: 'cls' },
-        h('input', { type: 'radio', name: 'cls', value: c.id, checked: c.id === S.cls, onchange: () => { S.cls = c.id; } }), h('span', null, c.name)))));
+        h('input', { type: 'radio', name: 'cls', value: c.id, checked: c.id === S.cls, onchange: () => { S.cls = c.id; S.pending = null; render(); } }), h('span', null, c.name, c.prof ? h('small', { class: 'prof' }, c.prof) : null)))));
   }
   function classSelect(id, val, on) {
     return h('select', { id, value: val, onchange: (e) => on(e.target.value) }, CLASSES.map((c) => h('option', { value: c.id }, c.name)));
@@ -558,15 +653,16 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
   function viewDay() {
     const wrap = h('div');
     const dur = h('select', { id: 'dur', value: S.dur || '5', onchange: (e) => { S.dur = e.target.value; } }, [2, 3, 5, 10].map((n) => h('option', { value: String(n) }, n + ' minutes')));
-    const l = S.live, open = isOpen(l);
+    const l = liveFor(S.cls), open = isOpen(l);
     wrap.append(h('div', { class: 'panel' },
       h('h2', null, 'Open an attendance window'),
       classRadios(),
-      h('div', { class: 'row' }, h('div', null, h('label', { for: 'dur' }, 'Window length'), dur), h('div', null, h('span', { class: 'chip' }, 'Radius 50 m'))),
-      h('p', { class: 'hint' }, 'Stand where you teach. Your location becomes the centre of the 50 m circle. Students can mark only while the window is open, and only once per class per day.'),
+      h('div', { class: 'row' }, h('div', null, h('label', { for: 'dur' }, 'Window length'), dur), h('div', null, h('span', { class: 'chip' }, 'Radius ' + RADIUS + ' m'))),
+      h('p', { class: 'hint' }, 'Stand where you teach. Your location becomes the centre of the ' + RADIUS + ' m circle. Students can mark only while the window is open, and only once per class per day.'),
       h('div', { class: 'row tight' },
         h('button', { class: 'btn', type: 'button', disabled: S.busy, onclick: () => openWindow(false) }, 'Open window'),
         S.needNoGeo ? h('button', { class: 'btn ghost small', type: 'button', onclick: () => openWindow(true) }, 'Open without location check') : null),
+      h('p', { class: 'hint' }, openLives().length + ' attendance window(s) open across the college right now. Every class has its own window and code, so many teachers can run theirs together.'),
       msgEl('open'),
       l && !(l.closed && !open) ? h('div', { class: 'livebox' },
         h('div', { class: 'status' },
@@ -574,29 +670,32 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
           h('div', null, h('p', { class: 'status-title' }, l.className + (open ? ' is open' : ' window has ended')),
             h('p', { class: 'status-meta' }, (open ? 'Closes at ' : 'Ended at ') + fmtTime(l.closesAt) + (l.geo ? '. Centre fixed, GPS accuracy about ' + Math.round(l.acc || 0) + ' m.' : '. No location check.'))),
           h('div', { class: 'clock js-clock', 'data-close': l.closesAt }, open ? fmtClock(l.closesAt - Date.now()) : '00:00')),
-        open && S.secret && S.secret.sessionId === l.sessionId ? h('div', { class: 'codebox' }, h('span', { class: 'lbl' }, 'Class code: write it on the board'), h('b', null, S.secret.code)) : null,
+        open && S.secrets[S.cls] && S.secrets[S.cls].sessionId === l.sessionId ? h('div', { class: 'codebox' }, h('span', { class: 'lbl' }, 'Class code: write it on the board'), h('b', null, S.secrets[S.cls].code)) : null,
         h('div', { class: 'row tight' },
-          h('button', { class: 'btn small', type: 'button', disabled: !open, onclick: closeWindow }, 'Close now'),
-          h('button', { class: 'btn ghost small', type: 'button', disabled: !!l.closed, onclick: extendWindow }, 'Add 1 minute'))) : null));
+          h('button', { class: 'btn small', type: 'button', disabled: !open, onclick: () => closeWindow(S.cls) }, 'Close now'),
+          h('button', { class: 'btn ghost small', type: 'button', disabled: !!l.closed, onclick: () => extendWindow(S.cls) }, 'Add 1 minute'))) : null));
 
     // day view
     const info = datesOf(S.cls)[S.date];
     const marks = (r) => (S.records.get(r) || {})[markKey(S.cls, S.date)];
     let n = 0; ROLLS.forEach((r) => { if (marks(r)) n++; });
-    const future = S.date > today;
+    const future = S.date > today, locked = !future && isLocked(S.cls, S.date) && !S.isAdmin;
     wrap.append(h('div', { class: 'panel' },
       h('h2', null, 'Day view and manual marking'),
       h('div', { class: 'row' },
         h('div', null, h('label', { for: 'dc' }, 'Class'), classSelect('dc', S.cls, (v) => { S.cls = v; S.pending = null; render(); })),
-        h('div', null, h('label', { for: 'dd' }, 'Date'), h('input', { type: 'date', id: 'dd', value: S.date, max: today, onchange: (e) => { if (e.target.value) { S.date = e.target.value; S.pending = null; render(); } } }))),
+        h('div', null, h('label', { for: 'dd' }, 'Date'), h('input', { type: 'date', id: 'dd', value: S.date, max: addDays(today, 14), onchange: (e) => { if (e.target.value) { S.date = e.target.value; S.pending = null; render(); } } }))),
       h('p', { class: 'note' }, info ? (info.cancelled ? 'This class is marked as cancelled, so it is not counted in anyone\'s percentage.' : 'This class was held and counts in everyone\'s percentage.') : 'No class is recorded for this day yet. Marking a student present will record the class as held.'),
-      info ? h('div', null, h('button', { class: 'btn ghost small', type: 'button', onclick: () => setCancelled(!info.cancelled) }, info.cancelled ? 'Count this class again' : 'Cancel this class (do not count)')) : null,
+      locked ? h('p', { class: 'result warn' }, 'This day is locked: more than 12 hours have passed since the class ended. Only the Admin can correct it now.') : null,
+      h('div', { class: 'row' },
+        !(info && info.cancelled) ? h('div', null, h('label', { for: 'cr' }, 'Reason shown to students (optional)'), h('input', { type: 'text', id: 'cr', maxlength: '80', value: S.creason || '', oninput: (e) => { S.creason = e.target.value; } })) : null,
+        h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy || locked, onclick: () => setCancelled(!(info && info.cancelled)) }, info && info.cancelled ? 'Count this class again' : 'Cancel this class (students will be told)')),
       holiday(S.date) ? h('p', { class: 'result warn' }, 'Holiday: ' + holiday(S.date)) : null,
       h('p', { class: 'count' }, h('b', null, String(n)), ' of ' + TOTAL + ' present'),
-      h('div', { class: 'grid' }, ROLLS.map((r, i) => {
+      h('div', { class: 'grid named' }, ROLLS.map((r, i) => {
         const on = !!marks(r), m = marks(r);
-        return h('button', { type: 'button', class: 'cell' + (on ? ' on' : '') + (S.pending && S.pending.roll === r ? ' sel' : ''), disabled: future || S.busy, 'aria-pressed': String(on),
-          'aria-label': r + (on ? ', present' : ', absent'), title: r + (on ? ' ' + markText(m) : ' absent'), onclick: () => { S.pending = { roll: r, mark: !on }; render(); } }, String(i + 1).padStart(2, '0'));
+        return h('button', { type: 'button', class: 'cell' + (on ? ' on' : '') + (S.pending && S.pending.roll === r ? ' sel' : ''), disabled: future || locked || S.busy, 'aria-pressed': String(on),
+          'aria-label': r + (on ? ', present' : ', absent'), title: r + (on ? ' ' + markText(m) : ' absent'), onclick: () => { S.pending = { roll: r, mark: !on }; render(); } }, h('b', null, String(i + 1).padStart(2, '0')), h('span', { class: 'rl' }, r), NAMES[r] ? h('small', null, NAMES[r]) : null);
       })),
       S.pending ? confirmBar() : h('p', { class: 'hint' }, 'Tap a number to mark or unmark that student. You will be asked to confirm and give a reason. Every change is saved in the Changes log.'),
       msgEl('day')));
@@ -614,58 +713,81 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
         h('button', { class: 'btn ghost small', type: 'button', onclick: () => { S.pending = null; render(); } }, 'Cancel')));
   }
   async function auditAdd(batch, data) {
-    batch.set(db.collection('audit').doc(), Object.assign({ by: S.user.email, ts: Date.now() }, data));
+    batch.set(db.collection('audit').doc(), Object.assign({ by: S.user.email, ts: Date.now(), branch: S.branch || '', expireAt: expireTs() }, data));
   }
   async function profMark(roll, cid, date, mark, reason) {
+    if (isPast()) { banner('Past session: attendance is read-only. Choose the current session at the top.'); return; }
     if (date > today) return msg('day', 'You cannot change attendance for a future date.', 'bad');
+    if (isLocked(cid, date) && !S.isAdmin) return msg('day', 'This day is locked (more than 12 hours since the class ended). Ask the Admin to correct it.', 'bad');
     S.busy = true; render();
     try {
       const key = markKey(cid, date), batch = db.batch(), ref = db.doc('records/' + roll);
       if (mark) {
-        batch.set(ref, { roll, marks: { [key]: { ts: Date.now(), dist: null, acc: null, method: 'manual', by: S.user.email, reason, sid: 'manual' } } }, { merge: true });
-        if (!datesOf(cid)[date]) batch.set(db.doc('calendar/' + cid), { classId: cid, dates: { [date]: { cancelled: false, openedAt: Date.now(), manual: true } } }, { merge: true });
-      } else batch.update(ref, new FP('marks', key), FV.delete());
+        batch.set(ref, { roll, expireAt: expireTs(), marks: { [key]: { ts: Date.now(), dist: null, acc: null, method: 'manual', by: S.user.email, reason, sid: 'manual' } } }, { merge: true });
+        if (!datesOf(cid)[date]) batch.set(db.doc('calendar/' + cid), { classId: cid, expireAt: expireTs(), dates: { [date]: { cancelled: false, openedAt: Date.now(), manual: true } } }, { merge: true });
+      } else batch.update(ref, new FP('marks', key), FV.delete(), 'expireAt', expireTs());
       await auditAdd(batch, { action: mark ? 'mark' : 'unmark', roll, classId: cid, dateKey: date, reason });
       await batch.commit();
       S.pending = null; S.busy = false; msg('day', (mark ? 'Marked ' : 'Removed ') + roll + '.', 'ok');
     } catch (e) { S.busy = false; msg('day', 'Could not save that change. Check your connection and try again.', 'bad'); }
   }
   async function setCancelled(c) {
+    if (isPast()) { banner('Past session: attendance is read-only. Choose the current session at the top.'); return; }
+    if (isLocked(S.cls, S.date) && !S.isAdmin) return msg('day', 'This day is locked (more than 12 hours since the class ended). Ask the Admin to change it.', 'bad');
     S.busy = true; render();
     try {
+      const sub = ((S.config && S.config.subjects) || []).find((x) => x.id === S.cls) || {}, note = (S.creason || '').trim().slice(0, 80), now = Date.now();
+      const entry = c ? { cancelled: true, cancelledAt: now, cancelledBy: sub.prof || '', cancelNote: note } : { cancelled: false, restoredAt: now };
       const batch = db.batch();
-      batch.set(db.doc('calendar/' + S.cls), { classId: S.cls, dates: { [S.date]: { cancelled: c } } }, { merge: true });
-      await auditAdd(batch, { action: c ? 'cancel-class' : 'restore-class', roll: '', classId: S.cls, dateKey: S.date, reason: '' });
-      await batch.commit(); S.busy = false; msg('day', c ? 'Class cancelled. It is no longer counted.' : 'Class counted again.', 'ok');
+      batch.set(db.doc('calendar/' + S.cls), { classId: S.cls, expireAt: expireTs(), dates: { [S.date]: entry } }, { merge: true });
+      await auditAdd(batch, { action: c ? 'cancel-class' : 'restore-class', roll: '', classId: S.cls, dateKey: S.date, reason: c ? note : '' });
+      await batch.commit(); S.busy = false; S.creason = '';
+      msg('day', c ? 'Class cancelled. Students of this class can see it now. It is not counted.' : 'Class counted again.', 'ok');
     } catch (e) { S.busy = false; msg('day', 'Could not change the class. Try again.', 'bad'); }
   }
   async function openWindow(noGeo) {
     S.needNoGeo = false;
+    if (isPast()) return msg('open', 'This is a past session (read-only). Choose the current session at the top.', 'bad');
     const hol = holiday(istDate()); if (hol) return msg('open', 'Today is a holiday (' + hol + '). Remove it in Setup if the class is really held.', 'bad');
     const el = document.querySelector('input[name="cls"]:checked');
     const classId = el ? el.value : S.cls, mins = parseInt(($('dur') || {}).value || S.dur || '5', 10);
+    if (isOpen(liveFor(classId)) && !confirm('A window for this class is already open. Replace it with a new one?')) return;
     S.cls = classId; S.busy = true; msg('open', noGeo ? 'Opening' : 'Reading your location', 'warn');
     try {
       let g = null;
       if (!noGeo) {
         try { const p = await getPos(); g = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy }; }
-        catch (e) { S.busy = false; S.needNoGeo = true; return msg('open', geoMsg(e) + ' You can still open this window without the 50 m check. Students will see that location is not checked.', 'bad'); }
+        catch (e) { S.busy = false; S.needNoGeo = true; return msg('open', geoMsg(e) + ' You can still open this window without the location check. Students will see that location is not checked.', 'bad'); }
       }
       const now = Date.now(), dk = istDate(now), batch = db.batch(), sid = 's' + now.toString(36), code = String(1000 + crypto.getRandomValues(new Uint32Array(1))[0] % 9000);
-      batch.set(db.doc('live/current'), {
+      batch.set(db.doc('live/' + classId), {
         sessionId: sid, batch: curBatch(), classId, className: clsName(classId), dateKey: dk,
         openedAt: now, closesAt: now + mins * 60000, closed: false, geo: !!g,
-        lat: g ? g.lat : null, lng: g ? g.lng : null, acc: g ? Math.round(g.acc) : null, radius: RADIUS
+        lat: g ? g.lat : null, lng: g ? g.lng : null, acc: g ? Math.round(g.acc) : null, radius: RADIUS, accMax: ACC_MAX
       });
-      batch.set(db.doc('calendar/' + classId), { classId, dates: { [dk]: { cancelled: false, openedAt: now } } }, { merge: true });
-      batch.set(db.doc('secret/current'), { code, sessionId: sid });
+      batch.set(db.doc('calendar/' + classId), { classId, expireAt: expireTs(), dates: { [dk]: { cancelled: false, openedAt: now, endedAt: now + mins * 60000 } } }, { merge: true });
+      batch.set(db.doc('secret/' + classId), { code, sessionId: sid });
       await batch.commit();
       S.date = dk; S.busy = false;
       msg('open', g && g.acc > 25 ? 'Window open. Your GPS is accurate to about ' + Math.round(g.acc) + ' m, so a spot near a window gives a tighter circle.' : 'Window open for ' + mins + ' minutes.', g && g.acc > 25 ? 'warn' : 'ok');
     } catch (e) { S.busy = false; msg('open', 'Could not open the window. Check your connection and try again.', 'bad'); }
   }
-  async function closeWindow() { try { await db.doc('live/current').update({ closed: true, closedAt: Date.now() }); msg('open', 'Window closed.', 'ok'); } catch (_) { msg('open', 'Could not close the window. Try again.', 'bad'); } }
-  async function extendWindow() { try { await db.doc('live/current').update({ closesAt: Math.max(S.live.closesAt, Date.now()) + 60000, closed: false }); msg('open', 'Added one minute.', 'ok'); } catch (_) { msg('open', 'Could not extend the window. Try again.', 'bad'); } }
+  async function closeWindow(cid) {
+    try {
+      const l = liveFor(cid), now = Date.now(), b = db.batch();
+      b.update(db.doc('live/' + cid), { closed: true, closedAt: now });
+      if (l && l.dateKey) b.set(db.doc('calendar/' + cid), { classId: cid, expireAt: expireTs(), dates: { [l.dateKey]: { endedAt: now } } }, { merge: true });
+      await b.commit(); msg('open', 'Window closed.', 'ok');
+    } catch (_) { msg('open', 'Could not close the window. Try again.', 'bad'); }
+  }
+  async function extendWindow(cid) {
+    try {
+      const l = liveFor(cid), nc = Math.max(l.closesAt, Date.now()) + 60000, b = db.batch();
+      b.update(db.doc('live/' + cid), { closesAt: nc, closed: false });
+      if (l.dateKey) b.set(db.doc('calendar/' + cid), { classId: cid, expireAt: expireTs(), dates: { [l.dateKey]: { endedAt: nc } } }, { merge: true });
+      await b.commit(); msg('open', 'Added one minute.', 'ok');
+    } catch (_) { msg('open', 'Could not extend the window. Try again.', 'bad'); }
+  }
 
   // ---------- professor: Register ----------
   function viewRegister() {
@@ -749,6 +871,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
     const ready = branchesOf().length && yearsOf().length, pending = ROLLS.filter((r) => have.get(r) && !have.get(r).activated).length;
     return h('div', { class: 'panel' },
       h('h2', null, 'Student accounts'),
+      h('div', null, h('label', { for: 'namestxt' }, 'Student names (optional, updatable)'),
+        h('textarea', { id: 'namestxt', rows: '3', value: S.namesTxt || '', placeholder: 'One per line: roll number, full name', oninput: (e) => { S.namesTxt = e.target.value; } }),
+        h('div', null, h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy, onclick: saveNames }, 'Save names'))),
       !ready ? h('p', { class: 'result warn' }, 'First add a branch and a year in Setup.') : null,
       h('p', { class: 'note' }, h('b', null, String(TOTAL)), ' students in ' + (S.branch || '-') + ', ' + (S.year || '-') + '. ' + pending + ' have not set their own password yet.'),
       h('div', null, h('label', { for: 'newrolls' }, 'Add roll numbers to this branch and year'),
@@ -756,11 +881,38 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       h('div', { class: 'row tight' },
         h('button', { class: 'btn', type: 'button', disabled: S.busy || !ready, onclick: createAccounts }, 'Create accounts'),
         S.codes && S.codes.length ? h('button', { class: 'btn ghost small', type: 'button', onclick: () => downloadCsv('activation-codes-' + today + '.csv', [['Roll number', 'Activation code']].concat(S.codes)) }, 'Download activation codes') : null),
+      h('div', { class: 'row tight' }, h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy, onclick: syncBranchMap }, 'Sync branch map'),
+        h('span', { class: 'hint' }, 'Run once for existing students. HODs can only see records of students listed in the branch map.')),
+      h('div', { class: 'row tight' }, h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy, onclick: downloadBackup }, 'Download backup'), h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy, onclick: applyRetention }, 'Apply 5-year retention to old data')),
       msgEl('stu'),
       h('p', { class: 'hint' }, 'Each new student gets a one-time activation code. They log in with their roll number and that code, then choose their own password. The codes exist only on this screen: download them right after creating, and hand each student only their own.'),
       h('div', { class: 'tablewrap' }, h('table', { class: 't' },
         h('thead', null, h('tr', null, h('th', { class: 'mono' }, 'Roll number'), h('th', null, 'Own password'), h('th', null, 'Phone'), h('th', null, 'Help'))),
         h('tbody', null, ROLLS.map((r) => { const x = have.get(r) || {}; return h('tr', null, h('td', { class: 'mono' }, r), h('td', null, x.activated ? 'Set' : 'Not yet'), h('td', null, x.device ? 'Registered' : '-'), h('td', null, h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy, onclick: () => resetLogin(x) }, 'New code'), ' ', h('button', { class: 'btn ghost small', type: 'button', disabled: S.busy || !x.device, onclick: () => resetDevice(x) }, 'Reset phone'))); })))));
+  }
+  function downloadBackup() {
+    const out = { exportedAt: new Date().toISOString(), config: S.config || {}, calendar: S.calendar || {}, records: Object.fromEntries(S.records), students: [...S.students.values()].map((v) => { const o = Object.assign({}, v); delete o.uid; return o; }) };
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(out)], { type: 'application/json' }));
+    a.download = 'agixon-backup-' + today + '.json'; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  async function applyRetention() {
+    if (!confirm('Mark all existing attendance data to be deleted automatically 5 years from now? New data gets this by itself. Download a backup first.')) return;
+    S.busy = true; msg('stu', 'Working', 'warn');
+    try {
+      const ts = expireTs(), ops = [...S.records.keys()].map((r) => db.doc('records/' + r)).concat(Object.keys(S.calendar).map((c) => db.doc('calendar/' + c)));
+      for (let i = 0; i < ops.length; i += 400) { const b = db.batch(); ops.slice(i, i + 400).forEach((ref) => b.update(ref, { expireAt: ts })); await b.commit(); }
+      S.busy = false; msg('stu', 'Done for ' + ops.length + ' documents.', 'ok');
+    } catch (_) { S.busy = false; msg('stu', 'Could not finish. Check that the new firestore.rules are published.', 'bad'); }
+  }
+  async function syncBranchMap() {
+    const seen = new Map(); S.students.forEach((v) => { if (!v.disabled && v.roll && v.branch) seen.set(v.roll, v.branch); });
+    if (!seen.size) return msg('stu', 'No students with a branch were found.', 'bad');
+    S.busy = true; msg('stu', 'Syncing', 'warn');
+    try {
+      const ents = [...seen];
+      for (let i = 0; i < ents.length; i += 400) { const b = db.batch(); ents.slice(i, i + 400).forEach(([roll, br]) => b.set(db.doc('branchmap/' + roll), { branch: br })); await b.commit(); }
+      S.busy = false; msg('stu', 'Branch map synced for ' + seen.size + ' students.', 'ok');
+    } catch (_) { S.busy = false; msg('stu', 'Could not sync. Check that the new firestore.rules are published.', 'bad'); }
   }
   async function resetDevice(x) {
     if (!confirm('Reset the registered phone of ' + x.roll + '? The student can register a new phone at the next login.')) return;
@@ -779,13 +931,23 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       const sa = sec.auth(), v = (x.v || 0) + 1, code = makeCode();
       const cred = await sa.createUserWithEmailAndPassword(emailOf(x.roll, v), code); await sa.signOut();
       const b = db.batch();
-      b.set(db.doc('students/' + cred.user.uid), { roll: x.roll, branch: x.branch || '', year: x.year || '', batch: x.batch || '', v, activated: false, createdAt: Date.now() });
+      b.set(db.doc('students/' + cred.user.uid), { roll: x.roll, name: x.name || '', branch: x.branch || '', year: x.year || '', batch: x.batch || '', v, activated: false, createdAt: Date.now() });
       b.update(db.doc('students/' + x.uid), { disabled: true });
       b.set(db.doc('loginver/' + x.roll), { v });
       await auditAdd(b, { action: 'reset-login', roll: x.roll, classId: '', dateKey: today, reason: '' });
       await b.commit(); S.busy = false;
       msg('stu', 'New code for ' + x.roll + ': ' + code + '   Give it only to this student. It is shown once.', 'ok');
     } catch (_) { S.busy = false; msg('stu', 'Could not create the new login. Check your connection and try again.', 'bad'); }
+  }
+  async function saveNames() {
+    const rows = (S.namesTxt || '').split('\n').map((l) => l.trim()).filter(Boolean).map((l) => { const i = l.search(/[,\t]/); return i < 0 ? null : [l.slice(0, i).trim(), l.slice(i + 1).trim()]; }).filter((r) => r && r[0] && r[1]);
+    if (!rows.length) return msg('stu', 'Write one student per line as: roll number, full name.', 'bad');
+    const by = new Map(); S.students.forEach((v) => { if (!v.disabled) by.set(v.roll, v); });
+    const b = db.batch(); let n = 0;
+    rows.forEach(([roll, name]) => { const st = by.get(roll); if (st && n < 450) { b.update(db.doc('students/' + st.uid), { name: name.slice(0, 80) }); n++; } });
+    if (!n) return msg('stu', 'None of these roll numbers has an account yet. Create the accounts first.', 'bad');
+    S.busy = true;
+    try { await b.commit(); S.busy = false; msg('stu', 'Names saved for ' + n + ' students.', 'ok'); } catch (_) { S.busy = false; msg('stu', 'Could not save the names. Try again.', 'bad'); }
   }
   async function createAccounts() {
     const list = parseRolls(S.newrolls || ''); curBatch();
@@ -802,7 +964,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
         const code = makeCode();
         try {
           const cred = await sa.createUserWithEmailAndPassword(emailOf(roll), code);
-          await db.doc('students/' + cred.user.uid).set({ roll, branch: nbr, year: nyr, batch: nb, activated: false, createdAt: Date.now() });
+          const wb = db.batch();
+          wb.set(db.doc('students/' + cred.user.uid), { roll, branch: nbr, year: nyr, batch: nb, activated: false, createdAt: Date.now() });
+          wb.set(db.doc('branchmap/' + roll), { branch: nbr });
+          await wb.commit();
           S.codes.push([roll, code]); made++; await sa.signOut();
         } catch (e) {
           if (e && e.code === 'auth/email-already-in-use') stuck.push(roll);
@@ -838,8 +1003,8 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       h('p', { class: 'note' }, 'Logged in as ' + S.user.email + '. Keep this password private.'),
       h('div', { class: 'row' }, h('div', null, h('label', { for: 'cpw' }, 'Current password'), h('input', { type: 'password', id: 'cpw', autocomplete: 'current-password' })), h('div', null, h('label', { for: 'npw' }, 'New password'), h('input', { type: 'password', id: 'npw', autocomplete: 'new-password' }))),
       h('div', { class: 'row tight' }, h('button', { class: 'btn small', type: 'button', onclick: changePw }, 'Change password'), h('button', { class: 'btn ghost small', type: 'button', onclick: mailReset }, 'Email me a reset link')),
-      h('h3', null, 'If your password has leaked'),
-      h('ol', { class: 'note' }, [
+      S.hodOnly ? null : h('h3', null, 'If your password has leaked'),
+      S.hodOnly ? null : h('ol', { class: 'note' }, [
         'Change the password here right now, or press Email me a reset link. The other person\'s old login stops working within about an hour.',
         'To lock them out at once: in Firebase, Authentication, Users, add a user with a new email. Put that new email in firestore.rules (profEmails), press Publish, then disable the old user. The old email loses all professor power immediately.',
         'Open the Changes tab and look for entries you did not make. Fix wrong marks with manual marking.',
@@ -852,13 +1017,32 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
     const addName = (field, id, arr) => { const v = val(id); if (!v) return msg('cfg', 'Type a name first.', 'bad'); if (arr.includes(v)) return msg('cfg', 'That name already exists.', 'bad'); saveCfg({ [field]: arr.concat(v) }, 'Added ' + v + '.'); };
     const ask = (v) => confirm('Remove "' + v + '"? Attendance already saved stays in the database, but it will no longer be shown.');
     const rmBtn = (fn) => h('button', { class: 'btn ghost small', type: 'button', onclick: fn }, 'Remove');
-    const names = (field, arr) => h('ul', { class: 'list' }, arr.length ? arr.map((v) => h('li', null, v + ' ', rmBtn(() => { if (ask(v)) saveCfg({ [field]: arr.filter((x) => x !== v) }, 'Removed ' + v + '.'); }))) : h('li', null, 'None yet.'));
-    const adder = (field, id, ph, arr) => h('div', { class: 'row' }, h('div', null, h('input', { type: 'text', id, placeholder: ph })), h('button', { class: 'btn small', type: 'button', onclick: () => addName(field, id, arr) }, 'Add'));
+    const names = (field, arr) => h('ul', { class: 'list' }, arr.length ? arr.map((v) => h('li', null, v + '  ', h('div', { class: 'row tight' }, h('input', { type: 'text', id: 'pf_' + x.id, value: x.prof || '', placeholder: 'Faculty name' }), h('button', { class: 'btn ghost small', type: 'button', onclick: () => { if (isPast()) return msg('cfg', 'This is a past session (read-only).', 'bad'); saveCfg({ subjects: subs.map((y) => (y.id === x.id ? Object.assign({}, y, { prof: val('pf_' + x.id).slice(0, 80) }) : y)) }, 'Faculty updated for ' + x.name + '.'); } }, 'Save faculty')))) : h('li', null, 'None yet.'));
+    const addYear = () => {
+      const b = val('ny').replace(SESS_RE, '').trim();
+      if (isPast() || !S.session || S.session === 'General') return msg('cfg', 'Choose the current session at the top first.', 'bad');
+      if (!b) return msg('cfg', 'Type a year name first, for example Final Year.', 'bad');
+      const v = b + ' ' + S.session;
+      if (yr.includes(v)) return msg('cfg', 'That year already exists in this session.', 'bad');
+      saveCfg({ years: yr.concat(v) }, 'Added ' + v + '.');
+    };
+    const addSession = () => {
+      const v = val('nsess'), m = /^(\d{4})-(\d{2})$/.exec(v);
+      if (!m || (+m[1] + 1) % 100 !== +m[2]) return msg('cfg', 'Use the format 2027-28.', 'bad');
+      if (sessionsOf().includes(v)) return msg('cfg', 'That session already exists.', 'bad');
+      saveCfg({ sessions: ((S.config && S.config.sessions) || []).concat(v) }, 'Session ' + v + ' created. Choose it at the top, then press Make current.');
+    };
+    const makeCurrent = () => {
+      if (!S.session || S.session === 'General' || S.session === activeSess()) return msg('cfg', 'Choose a different session at the top first.', 'bad');
+      if (confirm('Make ' + S.session + ' the current session? ' + activeSess() + ' becomes read-only history. Do this only once a year.')) saveCfg({ activeSession: S.session, sessions: [...new Set(((S.config && S.config.sessions) || []).concat(S.session))] }, S.session + ' is now the current session.');
+    };
+    const adder = (field, id, ph, arr, fn) => h('div', { class: 'row' }, h('div', null, h('input', { type: 'text', id, placeholder: ph })), h('button', { class: 'btn small', type: 'button', onclick: () => (fn || addName)(field, id, arr) }, 'Add'));
     const opts = (arr) => arr.map((x) => h('option', { value: x }, x));
     const addSub = () => {
+      if (isPast()) return msg('cfg', 'This is a past session (read-only).', 'bad');
       const n = val('sn'), b = val('sb'), y = val('sy');
       if (!n || !b || !y) return msg('cfg', 'Choose a branch and year, then type the subject name.', 'bad');
-      saveCfg({ subjects: subs.concat({ id: 's' + Date.now().toString(36), name: n, branch: b, year: y }) }, 'Subject added.');
+      saveCfg({ subjects: subs.concat({ id: 's' + Date.now().toString(36), name: n, branch: b, year: y, prof: val('sp').slice(0, 80) }) }, 'Subject added.');
     };
     const addHol = () => {
       const a = val('hd'), z = val('hd2') || a, n = val('hn');
@@ -868,17 +1052,20 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
     };
     const delHol = async (d) => { try { await db.doc('config/main').update(new FP('holidays', d), FV.delete()); msg('cfg', 'Holiday removed.', 'ok'); } catch (_) { msg('cfg', 'Could not remove it. Try again.', 'bad'); } };
     return h('div', null,
-      h('div', { class: 'panel' }, h('h2', null, 'Branches and years'), msgEl('cfg'),
-        h('p', { class: 'hint' }, 'Start here. Add each branch (for example Electrical Engineering) and each year or batch (for example Final Year 2026-27). Add a new year name every session. Old years stay saved and can be opened from the year box at the top.'),
+      h('div', { class: 'panel' }, h('h2', null, 'Session'), msgEl('cfg'),
+        h('p', { class: 'hint' }, 'Current session: ' + (activeSess() || 'none') + '. The session box at the top switches between sessions; it stays as you left it, so you never change it daily. Create the next session once a year, then press Make current. Older sessions stay as history for 5 years.'),
+        h('div', { class: 'row' }, h('div', null, h('input', { type: 'text', id: 'nsess', placeholder: '2027-28' })), h('button', { class: 'btn small', type: 'button', onclick: addSession }, 'Create session'), h('button', { class: 'btn ghost small', type: 'button', onclick: makeCurrent }, 'Make selected session current'))),
+      h('div', { class: 'panel' }, h('h2', null, 'Branches and years'),
+        h('p', { class: 'hint' }, 'Start here. Add each branch (for example Electrical Engineering) and each year or batch (for example Final Year 2026-27). Add a new year name for every session, for example Final Year 2027-28 (the session such as 2027-28 is read from the name). Branches, years and subjects cannot be removed, because attendance is a permanent record. Old years stay saved and can be opened from the year box at the top.'),
         h('label', null, 'Branches'), names('branches', br), adder('branches', 'nb', 'New branch name', br),
-        h('label', null, 'Years'), names('years', yr), adder('years', 'ny', 'New year name', yr)),
+        h('label', null, 'Years'), names('years', yr), adder('years', 'ny', 'Year name, e.g. Final Year (session is added automatically)', yr, addYear)),
       h('div', { class: 'panel' }, h('h2', null, 'Subjects'),
         h('p', { class: 'hint' }, 'A subject belongs to one branch and one year.'),
-        h('ul', { class: 'list' }, subs.length ? subs.map((x) => h('li', null, x.name + ' (' + x.branch + ', ' + x.year + ') ', rmBtn(() => { if (ask(x.name)) saveCfg({ subjects: subs.filter((y) => y.id !== x.id) }, 'Removed ' + x.name + '.'); }))) : h('li', null, 'None yet.')),
+        h('ul', { class: 'list' }, subs.length ? subs.map((x) => h('li', null, x.name + ' (' + x.branch + ', ' + x.year + ') ', h('span', { class: 'pill muted' }, 'kept for records'))) : h('li', null, 'None yet.')),
         h('div', { class: 'row' },
           h('div', null, h('label', { for: 'sb' }, 'Branch'), h('select', { id: 'sb', value: S.branch }, opts(br))),
-          h('div', null, h('label', { for: 'sy' }, 'Year'), h('select', { id: 'sy', value: S.year }, opts(yr))),
-          h('div', null, h('label', { for: 'sn' }, 'Subject name'), h('input', { type: 'text', id: 'sn', placeholder: 'Subject name' }))),
+          h('div', null, h('label', { for: 'sy' }, 'Year'), h('select', { id: 'sy', value: S.year }, opts(yearsInSession()))),
+          h('div', null, h('label', { for: 'sn' }, 'Subject name'), h('input', { type: 'text', id: 'sn', placeholder: 'Subject name' })), h('div', null, h('label', { for: 'sp' }, 'Faculty name'), h('input', { type: 'text', id: 'sp', placeholder: 'Faculty name' }))),
         h('div', null, h('button', { class: 'btn small', type: 'button', onclick: addSub }, 'Add subject'))),
       h('div', { class: 'panel' }, h('h2', null, 'Holidays'),
         h('p', { class: 'hint' }, 'You cannot open an attendance window on a holiday. For a long break, also fill the last date.'),
@@ -914,7 +1101,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
 
   // ---------- professor: Changes log ----------
   async function loadAudit() {
-    try { const s = await db.collection('audit').orderBy('ts', 'desc').limit(100).get(); S.audit = s.docs.map((d) => d.data()); }
+    try {
+      if (S.hodOnly) { const s = await db.collection('audit').where('branch', '==', S.hodBranch).limit(100).get(); S.audit = s.docs.map((d) => d.data()).sort((a, b) => b.ts - a.ts); }
+      else { const s = await db.collection('audit').orderBy('ts', 'desc').limit(100).get(); S.audit = s.docs.map((d) => d.data()); }
+    }
     catch (_) { S.audit = []; }
     render();
   }
@@ -927,10 +1117,171 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
         h('ul', { class: 'list' }, S.audit.map((a) => h('li', null, h('b', null, label[a.action] || a.action), (a.roll ? ' ' + a.roll : ''), (a.classId ? ' for ' + clsName(a.classId) : '') + ' on ' + fmtDate(a.dateKey), a.reason ? '. Reason: ' + a.reason : '', h('br'), h('span', { class: 'hint' }, fmtDate(istDate(a.ts)) + ' ' + fmtTime(a.ts) + ' by ' + a.by)))));
   }
 
+
+  // ---------- Director / HOD: overview ----------
+  function branchData(branch) {
+    const years = yearsInSession(), subs = ((S.config && S.config.subjects) || []).filter((x) => x.branch === branch && years.includes(x.year));
+    const by = {}; subs.forEach((x) => { const k = x.branch + '|' + x.year; (by[k] = by[k] || []).push(x); });
+    const rows = [];
+    S.students.forEach((v) => {
+      if (v.disabled || v.branch !== branch) return;
+      const yr = v.year || (v.batch || '').split('|')[1]; if (!years.includes(yr)) return;
+      const marks = S.records.get(v.roll) || {}; let held = 0, att = 0;
+      (by[v.batch || ''] || []).forEach((c) => { const t = statFor(marks, c.id); held += t.held; att += t.att; });
+      rows.push({ roll: v.roll, name: v.name || '', year: yr, att, held, marks, pct: pctOf(att, held), short: isShort(att, held) });
+    });
+    const subRows = subs.map((c) => {
+      const hd = heldDates(c.id), mine = rows.filter((r) => r.year === c.year); let a = 0;
+      mine.forEach((r) => { a += statFor(r.marks, c.id).att; });
+      return { name: c.name, prof: c.prof || '', year: c.year, held: hd.length, pct: hd.length && mine.length ? (a * 100) / (hd.length * mine.length) : null, last: hd.length ? hd[hd.length - 1] : '' };
+    });
+    return { rows, subRows };
+  }
+  const totalsOf = (d) => { let a = 0, hd = 0, sh = 0; d.rows.forEach((r) => { a += r.att; hd += r.held; if (r.short) sh++; }); return { n: d.rows.length, pct: pctOf(a, hd), short: sh, held: hd }; };
+  function viewOverview() {
+    curBatch();
+    const brs = branchesOf();
+    if (!brs.length) return h('div', { class: 'panel' }, h('p', { class: 'note' }, 'No branch is set up for your account yet.'));
+    const cur = brs.includes(S.branch) ? S.branch : brs[0], yrs = yearsInSession();
+    if (S.ovYear !== 'all' && !yrs.includes(S.ovYear)) S.ovYear = 'all';
+    const all = {}; brs.forEach((b) => { all[b] = branchData(b); });
+    const d = all[cur], rows = d.rows.filter((r) => S.ovYear === 'all' || r.year === S.ovYear), subRows = d.subRows.filter((r) => S.ovYear === 'all' || r.year === S.ovYear);
+    let a = 0, hd = 0; rows.forEach((r) => { a += r.att; hd += r.held; });
+    const avg = pctOf(a, hd), shortN = rows.filter((r) => r.short).length;
+    const shown = rows.filter((r) => !S.ovAll ? r.short : true).sort((x, y) => (x.pct == null ? 1 : y.pct == null ? -1 : x.pct - y.pct));
+    const lives = openLives().filter((l) => S.isDirector || String(l.batch || '').startsWith(S.hodBranch + '|'));
+    const parts = [];
+    parts.push(h('div', { class: 'panel' },
+      h('div', { class: 'row tight' }, h('h2', null, S.isDirector ? 'College overview' : S.hodBranch),
+        S.hodOnly ? h('button', { class: 'btn ghost small', type: 'button', disabled: S.recBusy, onclick: loadHodRecords }, S.recBusy ? 'Loading' : 'Refresh') : null),
+      h('p', { class: 'hint' }, 'Read-only. Session ' + (S.session || '-') + '.' + (S.hodOnly && S.recAt ? ' Updated ' + fmtTime(S.recAt) + '.' : '')),
+      lives.length
+        ? h('div', { style: 'display:grid;gap:8px' }, lives.map((l) => h('div', { class: 'livestrip' }, h('span', null, 'Live now: ' + (l.className || 'class') + ' (' + String(l.batch || '').replace('|', ', ') + ')'), h('span', { class: 'clock js-clock', 'data-close': String(l.closesAt) }, fmtClock(l.closesAt - Date.now())))))
+        : h('div', { class: 'livestrip idle' }, 'No attendance window is open right now.'),
+      !S.hodOnly ? h('div', null, h('button', { class: 'btn ghost small', type: 'button', onclick: downloadBackup }, 'Download full backup (JSON)')) : null,
+      S.hodOnly && S.recDenied ? h('p', { class: 'result warn' }, S.recDenied + ' students could not be loaded. Ask the Admin to press "Sync branch map" in Accounts.') : null,
+      brs.length > 1 ? h('div', { class: 'brgrid' }, brs.map((b) => {
+        const t = totalsOf(all[b]);
+        return h('button', { type: 'button', class: 'brcard' + (b === cur ? ' sel' : ''), onclick: () => { S.branch = b; S.ovYear = 'all'; render(); } },
+          h('h3', null, b), h('div', { class: 'pct' }, t.pct == null ? '-' : t.pct.toFixed(1), h('small', null, '%')),
+          h('div', { class: 'bar' + (t.pct != null && t.pct < CRIT ? ' short' : '') }, h('i', { style: 'width:' + Math.min(100, t.pct || 0) + '%' }), h('b')),
+          h('p', { class: 'note' }, t.n + ' students, ' + t.short + ' below 75%, ' + all[b].subRows.length + ' subjects'));
+      })) : null));
+    parts.push(h('div', { class: 'panel' },
+      h('div', { class: 'row' },
+        h('div', null, h('h2', null, cur)),
+        h('div', null, h('label', { for: 'oy' }, 'Year'), h('select', { id: 'oy', value: S.ovYear, onchange: (e) => { S.ovYear = e.target.value; render(); } }, h('option', { value: 'all' }, 'All years'), yrs.map((y) => h('option', { value: y }, y))))),
+      h('div', { class: 'kpis' },
+        h('div', { class: 'kpi' }, h('b', null, String(rows.length)), h('span', null, 'Students')),
+        h('div', { class: 'kpi ' + (avg != null && avg < CRIT ? 'bad' : 'ok') }, h('b', null, fmtPct(avg)), h('span', null, 'Average attendance')),
+        h('div', { class: 'kpi ' + (shortN ? 'bad' : 'ok') }, h('b', null, String(shortN)), h('span', null, 'Below 75%')),
+        h('div', { class: 'kpi' }, h('b', null, String(subRows.length)), h('span', null, 'Subjects'))),
+      h('h3', null, 'Subjects and faculty'),
+      h('div', { class: 'tablewrap' }, h('table', { class: 't' },
+        h('thead', null, h('tr', null, h('th', null, 'Subject'), h('th', null, 'Faculty'), h('th', null, 'Year'), h('th', { class: 'c' }, 'Held'), h('th', { class: 'c' }, 'Avg %'), h('th', null, 'Last class'))),
+        h('tbody', null, subRows.length ? subRows.map((r) => h('tr', null, h('td', null, r.name), h('td', null, r.prof || '-'), h('td', null, r.year), h('td', { class: 'c' }, r.held), h('td', { class: 'c' }, fmtPct(r.pct)), h('td', null, r.last ? fmtDate(r.last) : '-')))
+          : h('tr', null, h('td', { colspan: '6' }, 'No subjects for this branch in this session.'))))),
+      h('div', { class: 'row' },
+        h('div', null, h('h3', null, 'Students')),
+        h('div', null, h('label', { for: 'oa' }, 'Show'), h('select', { id: 'oa', value: S.ovAll ? 'all' : 'short', onchange: (e) => { S.ovAll = e.target.value === 'all'; render(); } }, h('option', { value: 'short' }, 'Only below 75%'), h('option', { value: 'all' }, 'Everyone'))),
+        h('button', { class: 'btn ghost small', type: 'button', onclick: () => downloadCsv('branch-' + cur.replace(/\W+/g, '-') + '-' + today + '.csv', [['Roll number', 'Name', 'Year', 'Attended', 'Held', 'Percent', 'Status']].concat(rows.map((r) => [r.roll, r.name, r.year, r.att, r.held, r.pct == null ? '' : r.pct.toFixed(1), r.held === 0 ? 'No classes yet' : r.short ? 'Below 75%' : 'Eligible']))) }, 'Save as CSV')),
+      h('div', { class: 'tablewrap' }, h('table', { class: 't' },
+        h('thead', null, h('tr', null, h('th', { class: 'mono' }, 'Roll number'), h('th', null, 'Name'), h('th', { class: 'c' }, 'Attended'), h('th', { class: 'c' }, 'Held'), h('th', { class: 'c' }, '%'), h('th', null, 'Status'))),
+        h('tbody', null, shown.length ? shown.map((r) => h('tr', { class: r.short ? 'short' : '' }, h('td', { class: 'mono' }, r.roll), h('td', null, r.name || '-'), h('td', { class: 'c' }, r.att), h('td', { class: 'c' }, r.held), h('td', { class: 'c' }, fmtPct(r.pct)),
+          h('td', null, h('span', { class: 'pill ' + (r.held === 0 ? 'muted' : r.short ? 'bad' : 'ok') }, r.held === 0 ? 'No classes' : r.short ? 'Below 75%' : 'Eligible'))))
+          : h('tr', null, h('td', { colspan: '6' }, S.ovAll ? 'No students found.' : 'Nobody is below 75%.'))))),
+      h('p', { class: 'hint' }, 'Cancelled classes are not counted. Manual changes by faculty are listed in the Changes tab.')));
+    if (S.hodOnly) parts.push(accountPanel());
+    return h('div', null, parts);
+  }
+
+  // ---------- Director: HOD access ----------
+  const makePw = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'; const b = new Uint32Array(14); crypto.getRandomValues(b); return Array.from(b, (x) => A[x % A.length]).join(''); };
+  async function loadStaff() {
+    try { const s = await db.collection('staff').get(); S.staffList = s.docs.map((d) => Object.assign({ id: d.id }, d.data())).sort((a, b) => (a.branch || '').localeCompare(b.branch || '')); }
+    catch (_) { S.staffList = []; }
+    render();
+  }
+  async function createHod() {
+    const name = raw('hn').trim().slice(0, 80), email = raw('he').trim().toLowerCase(), branch = raw('hb');
+    if (!name) return msg('staff', 'Type the HOD name.', 'bad');
+    if (!/^[^@\s\/]+@[^@\s\/]+\.[^@\s\/]+$/.test(email) || email.endsWith('@' + DOMAIN)) return msg('staff', 'Type a valid email address.', 'bad');
+    if (!branch) return msg('staff', 'Choose a branch.', 'bad');
+    S.busy = true; S.newCred = null; msg('staff', 'Creating the account', 'warn');
+    const pw = makePw();
+    let sec = firebase.apps.find((a) => a.name === 'sec'); if (!sec) sec = firebase.initializeApp(FIREBASE_CONFIG, 'sec');
+    const sa = sec.auth();
+    try {
+      await sa.createUserWithEmailAndPassword(email, pw); await sa.signOut();
+      await db.doc('staff/' + email).set({ role: 'hod', branch, name, active: true, mustChange: true, createdAt: Date.now(), createdBy: S.user.email });
+      S.newCred = { email, pw, branch, name }; S.hnV = ''; S.heV = ''; S.busy = false;
+      msg('staff', 'HOD account created. Copy the password now. It is shown only once.', 'ok'); loadStaff();
+    } catch (e) {
+      S.busy = false;
+      const c = (e && e.code) || '';
+      msg('staff', c === 'auth/email-already-in-use' ? 'That email already has a login, so it was not given HOD access (anyone could have registered it earlier). Delete that user in Firebase, Authentication, then create it here.'
+        : c === 'permission-denied' ? 'Not allowed. Log out and log in again, then retry, and check that the new firestore.rules are published.' : 'Could not create the account' + (c ? ' (' + c + ')' : '') + '.', 'bad');
+    }
+  }
+  async function toggleHod(x) {
+    if (!confirm((x.active ? 'Disable ' : 'Enable ') + (x.name || x.id) + '? ' + (x.active ? 'They lose access immediately.' : ''))) return;
+    try { await db.doc('staff/' + x.id).update({ active: !x.active }); msg('staff', (x.active ? 'Disabled ' : 'Enabled ') + (x.name || x.id) + '.', 'ok'); loadStaff(); }
+    catch (_) { msg('staff', 'Could not change this account. Log in again and retry.', 'bad'); }
+  }
+  async function resetHodPw(x) { try { await auth.sendPasswordResetEmail(x.id); msg('staff', 'Reset link sent to ' + x.id + '. Check Inbox and Spam.', 'ok'); } catch (_) { msg('staff', 'Could not send the link.', 'bad'); } }
+  function viewStaff() {
+    const br = (S.config && S.config.branches) || [], list = S.staffList;
+    const c = S.newCred;
+    return h('div', null,
+      h('div', { class: 'panel' }, h('h2', null, 'HOD access'),
+        h('p', { class: 'hint' }, 'A HOD sees only their own branch: students, attendance, subjects and faculty. They cannot change anything. You (Director) see every branch.'),
+        h('div', { class: 'row' },
+          h('div', null, h('label', { for: 'hn' }, 'HOD name'), h('input', { type: 'text', id: 'hn', autocomplete: 'off', value: S.hnV || '', oninput: (e) => { S.hnV = e.target.value; } })),
+          h('div', null, h('label', { for: 'he' }, 'HOD email'), h('input', { type: 'email', id: 'he', autocomplete: 'off', spellcheck: 'false', value: S.heV || '', oninput: (e) => { S.heV = e.target.value; } })),
+          h('div', null, h('label', { for: 'hb' }, 'Branch'), h('select', { id: 'hb', value: S.hbV || br[0] || '', onchange: (e) => { S.hbV = e.target.value; } }, br.map((b) => h('option', { value: b }, b))))),
+        h('div', null, h('button', { class: 'btn', type: 'button', disabled: S.busy || !br.length, onclick: createHod }, 'Create HOD account')),
+        msgEl('staff'),
+        c ? h('div', null, h('div', { class: 'cred' }, 'Email: ' + c.email, h('br'), 'Password: ' + c.pw, h('br'), 'Branch: ' + c.branch),
+          h('div', { class: 'row tight' }, h('button', { class: 'btn ghost small', type: 'button', onclick: () => { try { navigator.clipboard.writeText('Email: ' + c.email + '\nPassword: ' + c.pw); } catch (_) {} } }, 'Copy'), h('button', { class: 'btn ghost small', type: 'button', onclick: () => { S.newCred = null; render(); } }, 'Hide')),
+          h('p', { class: 'hint' }, 'Give this only to the HOD. At first login they must choose their own password.')) : null),
+      h('div', { class: 'panel' }, h('h3', null, 'Current HODs'),
+        list == null ? h('p', { class: 'note' }, 'Loading') : !list.length ? h('p', { class: 'note' }, 'No HOD account yet.') :
+          h('ul', { class: 'list' }, list.map((x) => h('li', null, h('b', null, x.name || x.id), ' ', h('span', { class: 'pill ' + (x.active ? 'ok' : 'muted') }, x.active ? (x.mustChange ? 'Waiting first login' : 'Active') : 'Disabled'), h('br'), h('span', { class: 'hint' }, x.id + ' | ' + x.branch),
+            h('div', { class: 'row tight' }, h('button', { class: 'btn ghost small', type: 'button', onclick: () => toggleHod(x) }, x.active ? 'Disable' : 'Enable'), h('button', { class: 'btn ghost small', type: 'button', onclick: () => resetHodPw(x) }, 'Send reset link')))))),
+      accountPanel());
+  }
+  function viewHodSetPassword() {
+    const p1 = h('input', { type: 'password', id: 'hp1', autocomplete: 'new-password' }), p2 = h('input', { type: 'password', id: 'hp2', autocomplete: 'new-password' });
+    const out = h('p', { class: 'result', hidden: true, role: 'status' });
+    const say = (t, k) => { out.textContent = t; out.className = 'result ' + k; out.hidden = !t; };
+    async function go() {
+      if (p1.value.length < 10) return say('Use at least 10 characters.', 'bad');
+      if (p1.value.toLowerCase() === (S.user.email || '').toLowerCase()) return say('Do not use your email as the password.', 'bad');
+      if (p1.value !== p2.value) return say('The two passwords do not match.', 'bad');
+      say('Saving', 'warn');
+      try {
+        await auth.currentUser.updatePassword(p1.value);
+        await db.doc('staff/' + S.user.email.toLowerCase()).update({ mustChange: false });
+        S.mustChange = false; banner(''); startProf(); render();
+      } catch (e) { say(e && e.code === 'auth/requires-recent-login' ? 'Please log out, log in again with the password you were given, then retry.' : 'Could not save the password. Try again.', 'bad'); }
+    }
+    return h('div', { class: 'panel login' }, h('h2', null, 'Choose your own password'),
+      h('p', { class: 'note' }, 'Welcome, ' + (S.hodName || 'HOD') + '. The password you were given is temporary. Choose a new one that only you know.'),
+      h('div', null, h('label', { for: 'hp1' }, 'New password'), p1), h('div', null, h('label', { for: 'hp2' }, 'Repeat it'), p2),
+      h('div', null, h('button', { class: 'btn', type: 'button', onclick: go }, 'Save and continue')), out);
+  }
+
   // ---------- live clocks ----------
   setInterval(() => {
     document.querySelectorAll('.js-clock').forEach((el) => { el.textContent = fmtClock(parseInt(el.dataset.close, 10) - Date.now()); });
-    const o = isOpen(S.live);
+    const nd = istDate();
+    if (nd !== today) {   // midnight passed: move every "today" view to the new date
+      const od = today; today = nd;
+      if (S.date === od) S.date = nd; if (S.selDate === od) S.selDate = nd;
+      if (S.regMonth === od.slice(0, 7)) S.regMonth = nd.slice(0, 7); if (S.month === od.slice(0, 7)) S.month = nd.slice(0, 7);
+      render();
+    }
+    const o = openLives().map((l) => l.classId + l.sessionId).sort().join(',');
     if (o !== wasOpen) { wasOpen = o; render(); }
   }, 1000);
 
@@ -945,17 +1296,39 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
     else banner('Some data could not be loaded (' + (code || 'unknown') + '). Reload the page.');
   };
   function watchShared() {
-    unsubs.push(db.doc('config/main').onSnapshot((s) => { S.config = s.exists ? s.data() : {}; render(); }, onErr));
-    unsubs.push(db.doc('live/current').onSnapshot((s) => { S.live = s.exists ? s.data() : null; render(); }, onErr));
-    unsubs.push(db.collection('calendar').onSnapshot((s) => { const c = {}; s.docs.forEach((d) => { c[d.id] = d.data(); }); S.calendar = c; render(); }, onErr));
+    unsubs.push(db.doc('config/main').onSnapshot((s) => {
+      S.config = s.exists ? s.data() : {};
+      if (S.isAdmin && S.role === 'prof' && !S.seeded && !(S.config.branches || []).length) { S.seeded = true; db.doc('config/main').set({ branches: DEFAULT_BRANCHES }, { merge: true }).catch(() => {}); }
+      render();
+    }, onErr));
+    const liveQ = S.role === 'student' ? db.collection('live').where('batch', '==', S.sbatch || '') : db.collection('live');
+    unsubs.push(liveQ.onSnapshot((s) => { const m = {}; s.docs.forEach((d) => { if (d.id !== 'current') m[d.id] = d.data(); }); S.lives = m; render(); }, onErr));
+    unsubs.push(db.collection('calendar').onSnapshot((s) => { const c = {}; s.docs.forEach((d) => { c[d.id] = d.data(); }); if (S.role === 'student') notifyCancels(S.calendar, c); S.calendar = c; render(); }, onErr));
   }
   function startStudent() {
     stopAll(); watchShared();
     unsubs.push(db.doc('records/' + S.roll).onSnapshot((s) => { S.myMarks = s.exists ? (s.data().marks || {}) : {}; render(); }, onErr));
   }
+  let recTimer = 0;
+  async function loadHodRecords() {
+    if (!S.hodOnly || !S.user || S.recBusy) return;
+    const rolls = [...new Set([...S.students.values()].filter((v) => !v.disabled && v.roll).map((v) => v.roll))];
+    S.recBusy = true; let denied = 0; const m = new Map(); render();
+    for (let i = 0; i < rolls.length; i += 20) {
+      await Promise.all(rolls.slice(i, i + 20).map(async (r) => { try { const d = await db.doc('records/' + r).get(); m.set(r, d.exists ? (d.data().marks || {}) : {}); } catch (_) { denied++; } }));
+    }
+    if (!S.user) return;
+    S.records = m; S.recDenied = denied; S.recAt = Date.now(); S.recBusy = false; render();
+  }
+  setInterval(() => { if (S.hodOnly && S.user && !S.mustChange && S.tab === 'ov' && !document.hidden) loadHodRecords(); }, 120000);
   function startProf() {
     stopAll(); watchShared();
-    unsubs.push(db.doc('secret/current').onSnapshot((x) => { S.secret = x.exists ? x.data() : null; render(); }, onErr));
+    if (S.isFaculty) unsubs.push(db.collection('secret').onSnapshot((x) => { const m = {}; x.docs.forEach((d) => { if (d.id !== 'current') m[d.id] = d.data(); }); S.secrets = m; render(); }, onErr));
+    if (S.hodOnly) {
+      // HOD: only this branch. The rules refuse any wider query.
+      unsubs.push(db.collection('students').where('branch', '==', S.hodBranch).onSnapshot((s) => { const m = new Map(); s.docs.forEach((d) => m.set(d.id, Object.assign({ uid: d.id }, d.data()))); S.students = m; clearTimeout(recTimer); recTimer = setTimeout(loadHodRecords, 500); render(); }, onErr));
+      return;
+    }
     unsubs.push(db.collection('records').onSnapshot((s) => { const m = new Map(); s.docs.forEach((d) => m.set(d.id, d.data().marks || {})); S.records = m; render(); }, onErr));
     unsubs.push(db.collection('students').onSnapshot((s) => { const m = new Map(); s.docs.forEach((d) => m.set(d.id, Object.assign({ uid: d.id }, d.data()))); S.students = m; render(); }, onErr));
   }
@@ -968,9 +1341,9 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
   auth = firebase.auth(); db = firebase.firestore(); FV = firebase.firestore.FieldValue; FP = firebase.firestore.FieldPath;
   let lastAct = Date.now();
   ['pointerdown', 'keydown', 'touchstart'].forEach((ev) => addEventListener(ev, () => { lastAct = Date.now(); }, { passive: true }));
-  setInterval(() => { if (auth.currentUser && Date.now() - lastAct > (S.role === 'prof' ? 30 : 45) * 60000) auth.signOut(); }, 30000);
+  setInterval(() => { if (auth.currentUser && Date.now() - lastAct > (S.isDirector || S.isHod ? 15 : S.role === 'prof' ? 30 : 45) * 60000) auth.signOut(); }, 30000);
   auth.onAuthStateChanged(async (u) => {
-    stopAll(); S.user = u; S.ready = true; S.live = null; S.myMarks = {}; S.records = new Map(); S.students = new Map(); S.pending = null; S.msgs = {}; S.audit = null;
+    stopAll(); S.isAdmin = S.isFaculty = S.isDirector = S.isHod = S.hodOnly = S.mustChange = false; S.newCred = null; S.staffList = null; S.recAt = 0; S.recBusy = false; S.recDenied = 0; S.user = u; S.ready = true; S.lives = {}; S.secrets = {}; S.calReady = false; S.myMarks = {}; S.records = new Map(); S.students = new Map(); S.pending = null; S.msgs = {}; S.audit = null;
     if (!u) { S.role = null; if (S.keepBanner) S.keepBanner = false; else banner(''); render(); return; }
     const em = u.email || '';
     if (em.endsWith('@' + DOMAIN)) {
@@ -985,7 +1358,18 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
         else S.devOk = !dd || dd === devId();
         if (S.activated) startStudent();
       } catch (_) { banner('Could not load your account. Reload the page.'); }
-    } else { S.role = 'prof'; S.tab = 'day'; banner(''); startProf(); }
+    } else {
+      const lo = em.toLowerCase(); S.role = 'prof'; S.isAdmin = ADMIN_EMAILS.includes(lo); S.isFaculty = FACULTY_EMAILS.includes(lo); S.isDirector = DIRECTOR_EMAILS.includes(lo);
+      S.isHod = false; S.hodBranch = ''; S.hodName = ''; S.mustChange = false; S.hodOnly = false; S.roleLabel = '';
+      if (!S.isDirector) {
+        try { const sd = await db.doc('staff/' + lo).get(), x = sd.exists ? sd.data() : null; if (x && x.active === true && x.role === 'hod' && x.branch) { S.isHod = true; S.hodBranch = x.branch; S.hodName = x.name || ''; S.mustChange = !!x.mustChange; } } catch (_) {}
+      }
+      if (!S.isAdmin && !S.isFaculty && !S.isDirector && !S.isHod) { banner('This account is not authorised for AgixOn.'); S.keepBanner = true; auth.signOut(); return; }
+      S.hodOnly = S.isHod && !S.isAdmin && !S.isFaculty && !S.isDirector;
+      S.roleLabel = S.isDirector ? 'Director | all branches' : S.isHod ? 'HOD | ' + S.hodBranch : '';
+      S.tab = S.isFaculty ? 'day' : (S.isDirector || S.isHod) ? 'ov' : 'stu'; S.ovYear = 'all'; banner('');
+      if (!S.mustChange) startProf();
+    }
     render();
   });
   render();
@@ -995,6 +1379,41 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(function(){});
 }
+</script>
+
+<script>
+/* Install as app: Android/Chrome shows a real Install button; iPhone gets Add-to-Home-Screen steps. */
+(function () {
+  var box = document.getElementById('install'); if (!box) return;
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  var dismissed = false; try { dismissed = localStorage.getItem('agx_install_x') === '1'; } catch (e) {}
+  if (standalone || dismissed) return;
+  var deferred = null;
+  function close() { box.hidden = true; try { localStorage.setItem('agx_install_x', '1'); } catch (e) {} }
+  function show(text, withBtn) {
+    box.textContent = '';
+    var p = document.createElement('p'); p.textContent = text; box.append(p);
+    if (withBtn) {
+      var b = document.createElement('button'); b.className = 'btn'; b.type = 'button'; b.textContent = 'Install app';
+      b.onclick = function () { if (!deferred) return; deferred.prompt(); deferred.userChoice.then(function () { deferred = null; box.hidden = true; }); };
+      box.append(b);
+    }
+    var x = document.createElement('button'); x.className = 'x'; x.type = 'button'; x.setAttribute('aria-label', 'Dismiss'); x.textContent = '\u00d7'; x.onclick = close; box.append(x);
+    box.hidden = false;
+  }
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; show('Install AgixOn on your phone to open it like an app, without searching on Google.', true); });
+  window.addEventListener('appinstalled', function () { box.hidden = true; });
+  var ua = navigator.userAgent || '';
+  if (/iphone|ipad|ipod/i.test(ua)) show('To install on iPhone: open this page in Safari, tap the Share button, then \u201cAdd to Home Screen\u201d.', false);
+})();
+</script>
+<script>
+(function () {
+  var b = document.getElementById('themeBtn'), root = document.documentElement, m = document.querySelector('meta[name="theme-color"]');
+  function paint() { var l = root.getAttribute('data-theme') === 'light'; b.textContent = l ? '\u263E Dark' : '\u2600 Light'; if (m) m.setAttribute('content', l ? '#f3f4fb' : '#090b10'); }
+  b.onclick = function () { var n = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; root.setAttribute('data-theme', n); try { localStorage.setItem('agx_theme', n); } catch (e) {} paint(); };
+  paint();
+})();
 </script>
 </body>
 </html>
