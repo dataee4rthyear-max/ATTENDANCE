@@ -168,9 +168,37 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .codebox { display: grid; justify-items: center; gap: 4px; padding: 14px; border: 2px dashed var(--accent); border-radius: 14px; }
 .codebox b { font: 700 46px var(--f-mono); letter-spacing: .3em; padding-left: .3em; }
 .foot { margin: 28px 0 0; text-align: center; color: var(--muted); font-size: 12px; }
+
+/* ---- AgixOn Obsidian theme (dark, always) ---- */
+:root, :root * { color-scheme: dark; }
+:root { --bg:#090b10; --surface:#0f1218; --surface2:#151a23; --ink:#e8ecf4; --muted:#8c97ad; --line:rgba(255,255,255,.08);
+  --accent:#818cf8; --accent-ink:#0a0c14; --ok:#34d399; --ok-soft:rgba(52,211,153,.12); --warn:#fbbf24; --warn-soft:rgba(251,191,36,.12);
+  --bad:#f87171; --bad-soft:rgba(248,113,113,.12); --shadow:0 0 0 1px rgba(255,255,255,.04),0 12px 32px rgba(0,0,0,.45);
+  --grad:linear-gradient(135deg,#6366f1,#22d3ee); }
+@media (prefers-color-scheme: light) { :root { --bg:#090b10; --surface:#0f1218; --ink:#e8ecf4; --muted:#8c97ad; --line:rgba(255,255,255,.08); --accent:#818cf8; --accent-ink:#0a0c14; --ok:#34d399; --ok-soft:rgba(52,211,153,.12); --warn:#fbbf24; --warn-soft:rgba(251,191,36,.12); --bad:#f87171; --bad-soft:rgba(248,113,113,.12); --shadow:0 0 0 1px rgba(255,255,255,.04),0 12px 32px rgba(0,0,0,.45); --grad:linear-gradient(135deg,#6366f1,#22d3ee); } }
+body { background: radial-gradient(900px 420px at 50% -160px, rgba(99,102,241,.22), transparent 70%), radial-gradient(600px 300px at 90% 0, rgba(34,211,238,.10), transparent 70%), var(--bg); }
+header.hero { background: linear-gradient(180deg, var(--surface2), var(--surface)); border-radius: 18px; padding: 18px 22px; position: relative; overflow: hidden; }
+header.hero::after { content:''; position:absolute; inset:0 0 auto 0; height:2px; background: var(--grad); opacity:.9; }
+.logo { filter: drop-shadow(0 6px 16px rgba(99,102,241,.45)); }
+h1 { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+h1 span { -webkit-text-fill-color: var(--muted); }
+.kicker { color: var(--muted); font-size: 10.5px; }
+.panel, .card, .nav { background: var(--surface); border-color: var(--line); }
+.card, input[type="text"], input[type="date"], input[type="month"], input[type="email"], input[type="password"], select, textarea, .linkgrid a { background: var(--surface2); border-color: var(--line); color: var(--ink); }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: 0; box-shadow: 0 0 0 3px rgba(129,140,248,.25); }
+.nav button[aria-selected="true"], .btn { background: var(--grad); color: #06080f; box-shadow: 0 8px 22px rgba(34,211,238,.18); }
+.btn.ghost { color: var(--ink); border: 1px solid var(--line); background: transparent; box-shadow: none; }
+.btn.ghost:hover { background: var(--surface2); }
+.t th, .t .sticky { background: var(--surface2); }
+.bar { background: rgba(255,255,255,.08); }
+.banner { border: 1px solid rgba(251,191,36,.35); line-height: 1.45; }
+.login { margin-top: 36px; padding: 28px; }
+.login h2 { font-size: 22px; }
+.foot { opacity: .7; }
+@media (max-width: 480px) { .wrap { padding-top: 14px; } header.hero { padding: 14px 16px; gap: 12px; } .logo { width: 46px; height: 46px; } .panel { padding: 18px; } }
 </style>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4338ca">
+<meta name="theme-color" content="#090b10">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -908,7 +936,14 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 
   // ---------- subscriptions ----------
   const stopAll = () => { unsubs.forEach((u) => { try { u(); } catch (_) {} }); unsubs = []; };
-  const onErr = () => banner('Some data could not be loaded. Reload the page.');
+  const onErr = (e) => {
+    const code = (e && e.code) || '';
+    if (!auth || !auth.currentUser) return;               // logged out: ignore stale listener errors
+    console.error('Firestore listener error:', code, e && e.message);
+    if (code === 'permission-denied') banner('Access denied by database rules (permission-denied). If you are the professor: log out, log in again, and make sure Firestore rules are published and your email matches the professor email in the rules.');
+    else if (code === 'unavailable') banner('Network problem. Check your internet connection; the page will reconnect by itself.');
+    else banner('Some data could not be loaded (' + (code || 'unknown') + '). Reload the page.');
+  };
   function watchShared() {
     unsubs.push(db.doc('config/main').onSnapshot((s) => { S.config = s.exists ? s.data() : {}; render(); }, onErr));
     unsubs.push(db.doc('live/current').onSnapshot((s) => { S.live = s.exists ? s.data() : null; render(); }, onErr));
@@ -936,14 +971,14 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
   setInterval(() => { if (auth.currentUser && Date.now() - lastAct > (S.role === 'prof' ? 30 : 45) * 60000) auth.signOut(); }, 30000);
   auth.onAuthStateChanged(async (u) => {
     stopAll(); S.user = u; S.ready = true; S.live = null; S.myMarks = {}; S.records = new Map(); S.students = new Map(); S.pending = null; S.msgs = {}; S.audit = null;
-    if (!u) { S.role = null; render(); return; }
+    if (!u) { S.role = null; if (S.keepBanner) S.keepBanner = false; else banner(''); render(); return; }
     const em = u.email || '';
     if (em.endsWith('@' + DOMAIN)) {
       S.role = 'student'; S.roll = em.split('@')[0].split('.')[0];
       try {
         const d = await db.doc('students/' + u.uid).get();
-        if (!d.exists || d.data().roll !== S.roll) { banner('Your account is not set up for this class. Ask your professor.'); auth.signOut(); return; }
-        if (d.data().disabled) { banner('Your login was replaced by your professor. Log in with your new activation code.'); auth.signOut(); return; }
+        if (!d.exists || d.data().roll !== S.roll) { banner('Your account is not set up for this class. Ask your professor.'); S.keepBanner = true; auth.signOut(); return; }
+        if (d.data().disabled) { banner('Your login was replaced by your professor. Log in with your new activation code.'); S.keepBanner = true; auth.signOut(); return; }
         S.activated = !!d.data().activated; S.sbatch = d.data().batch || ''; banner('');
         const dd = d.data().device || '';
         if (S.activated && !dd && devId()) { try { await db.doc('students/' + u.uid).update({ device: devId() }); S.devOk = true; } catch (_) { S.devOk = false; } }
