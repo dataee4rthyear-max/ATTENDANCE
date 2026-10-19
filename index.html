@@ -287,14 +287,14 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
   const DOMAIN = 'students.example.com';
   // Branch accounts: each branch has ONE account (HOD + faculty + admin of that branch only). Must match mgrBranch() in firestore.rules.
   const BRANCHES = [
-    { key: 'apsh', name: 'APSH (First Year)', email: 'admin.apsh@gmail.com' },
-    { key: 'ee', name: 'Electrical Engineering', email: 'admin.ee@gmail.com' },
-    { key: 'ce', name: 'Civil Engineering', email: 'admin.ce@gmail.com' },
-    { key: 'it', name: 'Information Technology', email: 'admin.it@gmail.com' }
+    { key: 'apsh', name: 'APSH (First Year)', email: 'admin.apsh@gmail.com', fac: 'faculty.apsh@gmail.com' },
+    { key: 'ee', name: 'Electrical Engineering', email: 'admin.ee@gmail.com', fac: 'faculty.ee@gmail.com' },
+    { key: 'ce', name: 'Civil Engineering', email: 'admin.ce@gmail.com', fac: 'faculty.ce@gmail.com' },
+    { key: 'it', name: 'Information Technology', email: 'admin.it@gmail.com', fac: 'faculty.it@gmail.com' }
   ];
   // Director = view only, all branches. Must match directorEmails() in firestore.rules.
   const DIRECTOR_EMAILS = ['director.all@gmail.com'];
-  const MGR = {}; BRANCHES.forEach((x) => { MGR[x.email] = x.name; });
+  const MGR = {}, FAC = {}; BRANCHES.forEach((x) => { MGR[x.email] = x.name; FAC[x.fac] = x.name; });
   const bkOf = (name) => (BRANCHES.find((x) => x.name === name) || {}).key || '';
   const mergeCfg = (docs) => {
     const o = { branches: S.isDirector ? BRANCHES.map((x) => x.name) : [S.role === 'student' ? (S.sbatch || '').split('|')[0] : S.mgrBranch], years: [], subjects: [], sessions: [], holidays: {}, workdays: [] };
@@ -1154,14 +1154,15 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
         h('p', { class: 'hint' }, 'Current session: ' + (activeSess() || 'none') + '. The session box at the top switches between sessions; it stays as you left it, so you never change it daily. Create the next session once a year, then press Make current. Older sessions stay as history for 5 years.'),
         h('div', { class: 'row' }, h('div', null, h('input', { type: 'text', id: 'nsess', placeholder: '2027-28' })), h('button', { class: 'btn small', type: 'button', onclick: addSession }, 'Create session'), h('button', { class: 'btn ghost small', type: 'button', onclick: makeCurrent }, 'Make selected session current'))),
       h('div', { class: 'panel' }, h('h2', null, 'Branches and years'),
-        h('p', { class: 'hint' }, 'Start here. Add each branch (for example Electrical Engineering) and each year or batch (for example Final Year 2026-27). Add a new year name for every session, for example Final Year 2027-28 (the session such as 2027-28 is read from the name). Branches, years and subjects cannot be removed, because attendance is a permanent record. Old years stay saved and can be opened from the year box at the top.'),
+        h('p', { class: 'hint' }, 'Start here. Add each branch (for example Electrical Engineering) and each year or batch (for example Final Year 2026-27). Add a new year name for every session, for example Final Year 2027-28 (the session such as 2027-28 is read from the name). A year or subject can be removed only while it is unused. Once attendance is saved it stays, but you can rename a subject and change its faculty. Old years stay saved and can be opened from the year box at the top.'),
         h('label', null, 'Branch (fixed for your account)'), names('branches', br),
-        h('label', null, 'Years'), names('years', yr), adder('years', 'ny', 'Year name, e.g. Final Year (session is added automatically)', yr, addYear)),
+        h('label', null, 'Years'), h('ul', { class: 'list' }, yr.length ? yr.map((v) => h('li', null, v + ' ', h('button', { class: 'btn ghost small', type: 'button', onclick: () => { if (subs.some((x) => x.year === v) || [...S.students.values()].some((x) => x.year === v)) return msg('cfg', v + ' is in use (subjects or students). Remove those first, or leave it.', 'bad'); if (confirm('Remove ' + v + '? It is unused.')) saveCfg({ years: yr.filter((y) => y !== v) }, 'Removed ' + v + '.'); } }, 'Remove (only if unused)'))) : h('li', null, 'None yet.')), adder('years', 'ny', 'Year name, e.g. Final Year (session is added automatically)', yr, addYear)),
       h('div', { class: 'panel' }, h('h2', null, 'Subjects'),
         h('p', { class: 'hint' }, 'A subject belongs to one branch and one year.'),
-        h('ul', { class: 'list' }, subs.length ? subs.map((x) => h('li', null, x.name + ' (' + x.branch + ', ' + x.year + ') ', h('span', { class: 'pill muted' }, 'kept for records'),
-          h('div', { class: 'row tight' }, h('input', { type: 'text', id: 'pf_' + x.id, value: x.prof || '', placeholder: 'Faculty name' }),
-            h('button', { class: 'btn ghost small', type: 'button', onclick: () => { if (isPast()) return msg('cfg', 'This is a past session (read-only).', 'bad'); saveCfg({ subjects: subs.map((y) => (y.id === x.id ? Object.assign({}, y, { prof: val('pf_' + x.id).slice(0, 80) }) : y)) }, 'Faculty updated for ' + x.name + '.'); } }, 'Save faculty')))) : h('li', null, 'None yet.')),
+        h('ul', { class: 'list' }, subs.length ? subs.map((x) => h('li', null, h('b', null, x.name), ' (' + x.branch + ', ' + x.year + ') ', h('span', { class: 'pill muted' }, Object.keys(datesOf(x.id)).length + ' class days saved'),
+          h('div', { class: 'row tight' }, h('input', { type: 'text', id: 'pn_' + x.id, value: x.name, placeholder: 'Subject name' }), h('input', { type: 'text', id: 'pf_' + x.id, value: x.prof || '', placeholder: 'Faculty name' }),
+            h('button', { class: 'btn ghost small', type: 'button', onclick: () => { if (isPast()) return msg('cfg', 'This is a past session (read-only).', 'bad'); const nn = val('pn_' + x.id).slice(0, 80); if (!nn) return msg('cfg', 'Subject name cannot be empty.', 'bad'); saveCfg({ subjects: subs.map((y) => (y.id === x.id ? Object.assign({}, y, { name: nn, prof: val('pf_' + x.id).slice(0, 80) }) : y)) }, 'Saved ' + nn + '.'); } }, 'Save changes'),
+            h('button', { class: 'btn ghost small', type: 'button', onclick: () => { if (isPast()) return msg('cfg', 'This is a past session (read-only).', 'bad'); if (Object.keys(datesOf(x.id)).length) return msg('cfg', 'Attendance is already saved for ' + x.name + ', so it cannot be removed. Rename it instead.', 'bad'); if (confirm('Remove ' + x.name + '? It has no attendance yet.')) saveCfg({ subjects: subs.filter((y) => y.id !== x.id) }, 'Removed ' + x.name + '.'); } }, 'Remove (only if no attendance)')))) : h('li', null, 'None yet.')),
         h('div', { class: 'row' },
           h('div', null, h('label', { for: 'sb' }, 'Branch'), h('select', { id: 'sb', value: S.branch }, opts(br))),
           h('div', null, h('label', { for: 'sy' }, 'Year'), h('select', { id: 'sy', value: S.year }, opts(yearsInSession()))),
@@ -1297,7 +1298,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
           h('td', null, h('span', { class: 'pill ' + (r.held === 0 ? 'muted' : r.short ? 'bad' : 'ok') }, r.held === 0 ? 'No classes' : r.short ? 'Below 75%' : 'Eligible'))))
           : h('tr', null, h('td', { colspan: '6' }, S.ovAll ? 'No students found.' : 'Nobody is below 75%.'))))),
       h('p', { class: 'hint' }, 'Cancelled classes are not counted. Manual changes by faculty are listed in the Changes tab.')));
-    if (S.hodOnly) parts.push(accountPanel());
+    if (S.hodOnly || (S.mgrBranch && !S.isAdmin)) parts.push(accountPanel());
     return h('div', null, parts);
   }
 
@@ -1465,7 +1466,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
   function syncBatchWatch() {
     if (S.role !== 'prof' || !S.isFaculty || S.mustChange || !S.user || !S.branch || !S.year) return;
     const key = S.branch + '|' + S.year;
-    if (!S.isAdmin && !S.isDirector && S.watchKey !== key) {
+    if (false && S.watchKey !== key) {
       quiet(batchUnsub ? [batchUnsub] : []); S.watchKey = key;
       batchUnsub = db.collection('students').where('batch', '==', key).onSnapshot((s) => { const m = new Map(); s.docs.forEach((d) => m.set(d.id, Object.assign({ uid: d.id }, d.data()))); S.students = m; render(); }, onErr);
     }
@@ -1506,10 +1507,10 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); outline
       } catch (_) { banner('Could not load your account. Reload the page.'); }
     } else {
       const lo = em.toLowerCase(); S.role = 'prof';
-      S.isDirector = DIRECTOR_EMAILS.includes(lo); S.mgrBranch = S.isDirector ? '' : (MGR[lo] || ''); S.mgrKey = bkOf(S.mgrBranch);
-      S.isAdmin = S.isFaculty = !!S.mgrBranch; S.hodBranch = S.mgrBranch;
+      S.isDirector = DIRECTOR_EMAILS.includes(lo); S.mgrBranch = S.isDirector ? '' : (MGR[lo] || FAC[lo] || ''); S.mgrKey = bkOf(S.mgrBranch);
+      S.isAdmin = !S.isDirector && !!MGR[lo]; S.isFaculty = !!S.mgrBranch; S.hodBranch = S.mgrBranch;
       if (!S.isDirector && !S.mgrBranch) { banner('This account is not authorised for AgixOn.'); S.keepBanner = true; auth.signOut(); return; }
-      S.roleLabel = S.isDirector ? 'Director | view only, all branches' : 'HOD | ' + S.mgrBranch;
+      S.roleLabel = S.isDirector ? 'Director | view only, all branches' : (S.isAdmin ? 'HOD | ' : 'Faculty | ') + S.mgrBranch;
       S.tab = S.isDirector ? 'ov' : 'day'; S.ovYear = 'all'; banner('');
       startProf(); if (S.isDirector) loadOverview();
     }
